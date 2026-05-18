@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acompanhamento HH - CAD FREVO</title>
+    <title>Acompanhamento HH & EOS - CAD FREVO</title>
     <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
     <style>
         * {
@@ -62,6 +62,43 @@
             font-weight: 600;
         }
 
+        /* Sistema de Abas Principais (Estilo Shopee) */
+        .tabs-navegacao {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .tab-button {
+            flex: 1;
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #dcdcdc;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .tab-button.active {
+            background-color: #ee4d2d;
+            color: white;
+            border-color: #ee4d2d;
+            box-shadow: 0 2px 5px rgba(238, 77, 45, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         /* Cards estruturais */
         .section-card {
             background-color: white;
@@ -83,7 +120,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* Abas e Pills */
+        /* Abas e Pills de Dias */
         .pills-container {
             display: flex;
             gap: 8px;
@@ -392,194 +429,224 @@
 
     <div class="shopee-header">
         <div class="header-brand">
-            <span class="header-badge">Shopee</span> ACOMPANHAMENTO HH
+            <span class="header-badge">Shopee</span> DASHBOARD COLABORATIVO
         </div>
         <div class="header-info">
             <div>FILIAL: <span>CAD FREVO</span></div>
             <div>TURNO: <span>T2 (14:00 - 22:00)</span></div>
-            <div>HORA ATUAL: <span id="live-clock">00:00:00</span></div>
+            <div>HORA ATUAL: <span id="live-clock">14:43:28</span></div>
         </div>
     </div>
 
-    <div class="section-card">
-        <div class="section-title">Selecionar Dia Operacional (Mês Atual)</div>
-        <div class="pills-container" id="dates-pills"></div>
+    <div class="tabs-navegacao">
+        <button class="tab-button active" onclick="alternarAba('aba-hh')">Acompanhamento HH</button>
+        <button class="tab-button" onclick="alternarAba('aba-eos')">EOS – Passagem de Turno</button>
     </div>
 
-    <div class="grid-container">
-
+    <div id="aba-hh" class="tab-content active">
         <div class="section-card">
-            <div class="section-title">PICKING – APONTAMENTO POR HORA</div>
-            <div class="kpi-container">
-                <div class="kpi-box">
-                    <div class="kpi-label">VOLUME DMO TOTAL</div>
-                    <div class="kpi-value-dmo" id="picking-thp-dmo">0</div>
+            <div class="section-title">Selecionar Dia Operacional (Mês Atual)</div>
+            <div class="pills-container" id="dates-pills"></div>
+        </div>
+
+        <div class="grid-container">
+            <div class="section-card">
+                <div class="section-title">PICKING – APONTAMENTO POR HORA</div>
+                <div class="kpi-container">
+                    <div class="kpi-box">
+                        <div class="kpi-label">VOLUME DMO TOTAL</div>
+                        <div class="kpi-value-dmo" id="picking-thp-dmo">10.253</div>
+                    </div>
+                    <div class="kpi-box">
+                        <div class="kpi-label">VOLUME REAL TOTAL</div>
+                        <div class="kpi-value-real" id="picking-thp-real">6.932</div>
+                    </div>
                 </div>
-                <div class="kpi-box">
-                    <div class="kpi-label">VOLUME REAL TOTAL</div>
-                    <div class="kpi-value-real" id="picking-thp-real">0</div>
+                
+                <div id="grafico-picking" class="grafico-painel"></div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Hora</th>
+                                <th>DMO</th>
+                                <th>Real</th>
+                                <th>Delta</th>
+                                <th>% Real</th>
+                                <th>HC DMO</th>
+                                <th>HC Real</th>
+                                <th>Status</th>
+                                <th>Observação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="body-picking"></tbody>
+                    </table>
                 </div>
             </div>
-            
-            <div id="grafico-picking" class="grafico-painel"></div>
 
+            <div class="section-card">
+                <div class="section-title">CHECKING – APONTAMENTO POR HORA</div>
+                <div class="kpi-container">
+                    <div class="kpi-box">
+                        <div class="kpi-label">VOLUME DMO TOTAL</div>
+                        <div class="kpi-value-dmo" id="checking-thp-dmo">888</div>
+                    </div>
+                    <div class="kpi-box">
+                        <div class="kpi-label">VOLUME REAL TOTAL</div>
+                        <div class="kpi-value-real" id="checking-thp-real">13.355</div>
+                    </div>
+                </div>
+
+                <div id="grafico-checking" class="grafico-painel"></div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Hora</th>
+                                <th>DMO</th>
+                                <th>Real</th>
+                                <th>Delta</th>
+                                <th>% Real</th>
+                                <th>HC DMO</th>
+                                <th>HC Real</th>
+                                <th>Status</th>
+                                <th>Observação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="body-checking"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="aba-eos" class="tab-content">
+        <div class="section-card" style="padding: 0; border: 1px solid #dcdcdc; overflow: hidden;">
+            <div class="sup-header-bar">Supervisores – Semana W</div>
+            <div class="sup-sub-header" id="semana-w-title">W20 – 10/05 – 16/05</div>
             <div class="table-responsive">
-                <table class="data-table">
+                <table class="sup-table">
                     <thead>
                         <tr>
-                            <th>Hora</th>
-                            <th>DMO</th>
-                            <th>Real</th>
-                            <th>Delta</th>
-                            <th>% Real</th>
-                            <th>HC DMO</th>
-                            <th>HC Real</th>
-                            <th>Status</th>
-                            <th>Observação</th>
+                            <th style="text-align:left; padding-left:12px; width: 16%;">Supervisor</th>
+                            <th>04 OPA</th>
+                            <th>DDS – Semanal</th>
+                            <th>Safety Walk</th>
+                            <th>PA OPA HSE</th>
+                            <th>Líder no Proc</th>
+                            <th>Cuidado Ativo</th>
+                            <th>Dif Qualidade</th>
                         </tr>
                     </thead>
-                    <tbody id="body-picking"></tbody>
+                    <tbody id="body-supervisores">
+                        </tbody>
                 </table>
             </div>
         </div>
 
-        <div class="section-card">
-            <div class="section-title">CHECKING – APONTAMENTO POR HORA</div>
-            <div class="kpi-container">
-                <div class="kpi-box">
-                    <div class="kpi-label">VOLUME DMO TOTAL</div>
-                    <div class="kpi-value-dmo" id="checking-thp-dmo">0</div>
+        <div class="section-card" style="margin-top: 15px;">
+            <div class="section-title">Resumo Final Consolidado do Turno</div>
+            <div class="resumo-grid">
+                <div class="resumo-card-item">
+                    <div class="resumo-meta">Meta Geral Acumulada</div>
+                    <div class="resumo-valor" id="resumo-meta-geral">0</div>
                 </div>
-                <div class="kpi-box">
-                    <div class="kpi-label">VOLUME REAL TOTAL</div>
-                    <div class="kpi-value-real" id="checking-thp-real">0</div>
+                <div class="resumo-card-item">
+                    <div class="resumo-meta">Realizado Geral</div>
+                    <div class="resumo-valor" style="color: #26a462;" id="resumo-real-geral">0</div>
+                </div>
+                <div class="resumo-card-item">
+                    <div class="resumo-meta">Desvio Geral (Delta)</div>
+                    <div class="resumo-valor" id="resumo-delta-geral">0</div>
+                </div>
+                <div class="resumo-card-item">
+                    <div class="resumo-meta">Eficiência do CAD</div>
+                    <div class="resumo-valor" style="color: #ee4d2d;" id="resumo-eficiencia-geral">0%</div>
                 </div>
             </div>
 
-            <div id="grafico-checking" class="grafico-painel"></div>
-
-            <div class="table-responsive">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Hora</th>
-                            <th>DMO</th>
-                            <th>Real</th>
-                            <th>Delta</th>
-                            <th>% Real</th>
-                            <th>HC DMO</th>
-                            <th>HC Real</th>
-                            <th>Status</th>
-                            <th>Observação</th>
-                        </tr>
-                    </thead>
-                    <tbody id="body-checking"></tbody>
-                </table>
+            <div class="obs-container">
+                <div style="font-weight: bold; font-size: 14px; color: #ff5722;">Passagem de Turno & Observações Logísticas</div>
+                <textarea class="obs-textarea" id="texto-obs-final" placeholder="Insira aqui os desafios vivenciados no turno, quebras operacionais, gargalos de malha ou prioridades para o próximo time..."></textarea>
             </div>
+
+            <button class="btn-salvar" onclick="salvarDados()">💾 Salvar e Consolidar Turno no EOS</button>
+            <div id="alert-sucesso" class="alert-success"></div>
         </div>
-    </div>
-
-    <div class="section-card" style="padding: 0; border: 1px solid #dcdcdc; overflow: hidden;">
-        <div class="sup-header-bar">Supervisores – Semana W</div>
-        <div class="sup-sub-header" id="semana-w-title">Semana Atual Operacional</div>
-        <div class="table-responsive">
-            <table class="sup-table">
-                <thead>
-                    <tr>
-                        <th style="text-align:left; padding-left:12px; width: 16%;">Supervisor</th>
-                        <th>04 OPA</th>
-                        <th>DDS – Semanal</th>
-                        <th>Safety Walk</th>
-                        <th>PA OPA HSE</th>
-                        <th>Líder no Proc</th>
-                        <th>Cuidado Ativo</th>
-                        <th>Dif Qualidade</th>
-                    </tr>
-                </thead>
-                <tbody id="body-supervisores"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="section-card" style="margin-top: 15px;">
-        <div class="section-title">Resumo Final Consolidado do Turno</div>
-        <div class="resumo-grid">
-            <div class="resumo-card-item">
-                <div class="resumo-meta">Meta Geral Acumulada</div>
-                <div class="resumo-valor" id="resumo-meta-geral">0</div>
-            </div>
-            <div class="resumo-card-item">
-                <div class="resumo-meta">Realizado Geral</div>
-                <div class="resumo-valor" style="color: #26a462;" id="resumo-real-geral">0</div>
-            </div>
-            <div class="resumo-card-item">
-                <div class="resumo-meta">Desvio Geral (Delta)</div>
-                <div class="resumo-valor" id="resumo-delta-geral">0</div>
-            </div>
-            <div class="resumo-card-item">
-                <div class="resumo-meta">Eficiência do CAD</div>
-                <div class="resumo-valor" style="color: #ee4d2d;" id="resumo-eficiencia-geral">0%</div>
-            </div>
-        </div>
-
-        <div class="obs-container">
-            <div style="font-weight: bold; font-size: 14px; color: #ff5722;">Passagem de Turno & Observações Logísticas</div>
-            <textarea class="obs-textarea" id="texto-obs-final" placeholder="Insira aqui os desafios vivenciados no turno, quebras operacionais, gargalos de malha ou prioridades para o próximo time..."></textarea>
-        </div>
-
-        <button class="btn-salvar" onclick="salvarDados()">💾 Salvar e Consolidar Turno no Sistema</button>
-        <div id="alert-sucesso" class="alert-success"></div>
     </div>
 
     <script>
-        // Relógio de Tempo Real
+        // Relógio de Tempo Real corrigido com o padrão do print
         setInterval(() => {
             const now = new Date();
             document.getElementById('live-clock').innerText = now.toTimeString().split(' ')[0];
         }, 1000);
 
+        // Lógica de Troca de Abas Principais
+        function alternarAba(idAba) {
+            document.querySelectorAll('.tab-content').forEach(conteudo => {
+                conteudo.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(botao => {
+                botao.classList.remove('active');
+            });
+
+            document.getElementById(idAba).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            // Forçar redimensionamento dos gráficos para não quebrarem o layout responsivo
+            if(idAba === 'aba-hh') {
+                setTimeout(() => {
+                    Plotly.Plots.resize(document.getElementById('grafico-picking'));
+                    Plotly.Plots.resize(document.getElementById('grafico-checking'));
+                }, 50);
+            }
+        }
+
         // Configuração Inicial de Dias (Pills)
-        const diasSemana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
-        let diaSelecionado = "Segunda";
+        const datasMes = ["15/05", "16/05", "17/05", "18/05", "19/05", "20/05", "21/05", "22/05", "23/05", "24/05", "25/05", "26/05", "27/05", "28/05"];
+        let dataSelecionada = "15/05";
         const containerPills = document.getElementById('dates-pills');
         
-        diasSemana.forEach(dia => {
+        datasMes.forEach(data => {
             const btn = document.createElement('button');
-            btn.className = `pill ${dia === diaSelecionado ? 'active' : ''}`;
-            btn.innerText = dia;
+            btn.className = `pill ${data === dataSelecionada ? 'active' : ''}`;
+            btn.innerText = data;
             btn.onclick = function() {
                 document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                diaSelecionado = dia;
+                dataSelecionada = data;
             };
             containerPills.appendChild(btn);
         });
 
-        // Configurações de Horários e Datasets Globais
+        // Datasets Globais (Carregados com os padrões aproximados dos seus inputs)
         const horasTurno = Array.from({length: 9}, (_, i) => `${i + 14}:00`);
         
         const df_picking = {
             hora: [...horasTurno],
-            dmo: [880, 1000, 1300, 1400, 675, 854, 1700, 1700, 1200],
-            real: [986, 1100, 1500, 1500, 1100, 1200, 1800, 2100, 1200],
+            dmo: [1100, 1200, 1300, 1400, 1000, 1100, 1200, 1153, 800],
+            real: [900, 1000, 850, 950, 700, 600, 750, 782, 400],
             hcDmo: [12, 12, 15, 15, 10, 10, 18, 18, 14],
             hcReal: [11, 13, 15, 14, 11, 12, 17, 19, 14],
-            observacao: ["", "", "Ajuste na esteira", "", "", "", "", "", ""]
+            observacao: ["Sinergia acima da LC", "", "", "", "", "", "", "", ""]
         };
 
         const df_checking = {
             hora: [...horasTurno],
-            dmo: [900, 950, 1200, 1100, 700, 800, 1500, 1600, 1100],
-            real: [920, 940, 1300, 1050, 850, 900, 1400, 1700, 1150],
+            dmo: [100, 100, 150, 150, 100, 100, 100, 88, 0],
+            real: [1500, 1600, 1800, 1700, 1400, 1500, 1655, 1200, 0],
             hcDmo: [8, 8, 10, 10, 7, 7, 12, 12, 9],
             hcReal: [8, 8, 11, 9, 8, 8, 11, 13, 9],
-            observacao: ["", "", "", "", "", "Gargalo na bipagem", "", "", ""]
+            observacao: ["Novatos perf. acima da LC", "", "", "", "", "", "", "", ""]
         };
 
-        const listaSupervisores = ["Supervisor Inbound", "Supervisor Outbound", "Supervisor Inventory", "Supervisor Logistics"];
-        const opcoesCheck = ["Concluído", "Pendente", "N/A"];
+        // Nomes exatos do seu print de supervisores
+        const listaSupervisores = ["GUIOBERTO", "MÁRIO", "MIGUEL", "SILVIO"];
 
-        // Inicializar Tabela de Supervisores (Semana W)
+        // Inicializar Tabela de Supervisores
         function carregarSupervisores() {
             const tbody = document.getElementById('body-supervisores');
             tbody.innerHTML = "";
@@ -591,7 +658,7 @@
                     tdCampos += `
                         <td>
                             <select class="select-sup">
-                                <option value="Concluído">✅ Concluído</option>
+                                <option value="OK">✅ OK</option>
                                 <option value="Pendente">⏳ Pendente</option>
                                 <option value="N/A">⚪ N/A</option>
                             </select>
@@ -602,7 +669,7 @@
             });
         }
 
-        // Processamento Geral de Cálculos, Gráficos e Tabelas
+        // Renderizador dos módulos de Picking e Checking
         function renderizarModulo(tipo, dataset, corBarra) {
             const tbody = document.getElementById(`body-${tipo}`);
             tbody.innerHTML = "";
@@ -611,7 +678,6 @@
             let totalReal = 0;
 
             const realizacoes = [];
-            const textRealizacoes = [];
             const deltas = [];
 
             for (let i = 0; i < dataset.hora.length; i++) {
@@ -625,9 +691,7 @@
 
                 deltas.push(delta);
                 realizacoes.push(parseFloat(realizacao));
-                textRealizacoes.push(`${realizacao}%`);
 
-                // Regra de Status Baseada em Eficiência
                 const statusTexto = realizacao >= 100 ? "OK" : "CRÍTICO";
                 const statusClasse = realizacao >= 100 ? "status-ok" : "status-critico";
                 const deltaClasse = delta >= 0 ? "pos-value" : "neg-value";
@@ -647,11 +711,10 @@
                 tbody.appendChild(tr);
             }
 
-            // Atualização dos KPIs de Cabeçalho do Card
             document.getElementById(`${tipo}-thp-dmo`).innerText = totalDmo.toLocaleString('pt-BR');
             document.getElementById(`${tipo}-thp-real`).innerText = totalReal.toLocaleString('pt-BR');
 
-            // Renderizar Gráfico Plotly
+            // Renderizar Gráficos Plotly
             const traceDMO = {
                 x: dataset.hora,
                 y: dataset.dmo,
@@ -700,7 +763,7 @@
             Plotly.newPlot(`grafico-${tipo}`, [traceDMO, traceReal, tracePorc], layout, {responsive: true, displayModeBar: false});
         }
 
-        // Consolidação dos Indicadores Finais do Turno Inteiro
+        // Consolidação dos Indicadores Finais
         function calcularResumoGeral() {
             let pDmo = df_picking.dmo.reduce((a, b) => a + b, 0);
             let pReal = df_picking.real.reduce((a, b) => a + b, 0);
@@ -722,7 +785,7 @@
             document.getElementById('resumo-eficiencia-geral').innerText = `${eficienciaGeral}%`;
         }
 
-        // Listener de Atualização Dinâmica nas células inputadas
+        // Listener de Atualização Dinâmica
         window.atualizarValor = function(tipo, index, campo, valor) {
             const dataset = tipo === 'picking' ? df_picking : df_checking;
             const corBarra = tipo === 'picking' ? '#ee4d2d' : '#f4a261';
@@ -740,7 +803,7 @@
         // Salvar e Confirmar no Sistema
         function salvarDados() {
             const alertBox = document.getElementById('alert-sucesso');
-            alertBox.innerText = `🚀 Sucesso! Turno consolidado para ${diaSelecionado} com sucesso no banco CAD FREVO!`;
+            alertBox.innerText = `🚀 Sucesso! Turno e dados do EOS consolidados para o dia ${dataSelecionada} no banco CAD FREVO!`;
             alertBox.style.display = 'block';
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             setTimeout(() => { alertBox.style.display = 'none'; }, 4000);
@@ -752,7 +815,6 @@
         carregarSupervisores();
         calcularResumoGeral();
         
-        // Correção de escala dos gráficos em redimensionamentos de tela
         window.addEventListener('resize', () => {
             Plotly.Plots.resize(document.getElementById('grafico-picking'));
             Plotly.Plots.resize(document.getElementById('grafico-checking'));
