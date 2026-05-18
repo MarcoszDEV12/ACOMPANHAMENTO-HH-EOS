@@ -1,0 +1,262 @@
+import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
+from datetime import datetime, timedelta
+
+# CONFIGURAÇÃO DA PÁGINA
+st.set_page_config(layout="wide", page_title="Acompanhamento HH - CAD FREVO")
+
+# IDENTIDADE VISUAL SHOPEE / CAD FREVO (CSS Customizado)
+st.markdown("""
+    <style>
+    .main { background-color: #F8F9FA; }
+    .shopee-header {
+        background-color: #EE4D2D;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 6px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        font-family: sans-serif;
+    }
+    .section-card {
+        background-color: #FFFFFF;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #E0E0E0;
+        margin-bottom: 15px;
+        box-shadow: 0px 2px 4px rgba(0,0,0,0.05);
+    }
+    .section-title {
+        color: #D44B28;
+        font-weight: bold;
+        border-left: 4px solid #D44B28;
+        padding-left: 8px;
+        margin-bottom: 12px;
+        font-size: 14px;
+        font-family: sans-serif;
+    }
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        background-color: #E0E0E0;
+        border-radius: 4px 4px 0px 0px;
+        padding: 6px 16px;
+        color: #555;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #D44B28 !important;
+        color: white !important;
+    }
+    /* Estilização dos Blocos de KPI de acordo com a imagem */
+    .kpi-container {
+        display: flex;
+        justify-content: space-between;
+        max-width: 450px;
+        margin-bottom: 15px;
+        font-family: sans-serif;
+    }
+    .kpi-box {
+        flex: 1;
+    }
+    .kpi-title {
+        font-size: 14px;
+        color: #333333;
+        font-weight: 500;
+        margin-bottom: 2px;
+    }
+    .kpi-value-dmo {
+        font-size: 32px;
+        font-weight: bold;
+        color: #000000;
+    }
+    .kpi-value-real {
+        font-size: 32px;
+        font-weight: bold;
+        color: #2E7D32;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# CABEÇALHO DINÂMICO
+st.markdown(f"""
+    <div class="shopee-header">
+        <div><span style="background-color:white; color:#EE4D2D; padding:2px 6px; border-radius:4px; margin-right:8px; font-size:12px;">Shopee</span> ACOMPANHAMENTO HH</div>
+        <div style="font-size: 14px;">CAD FREVO</div>
+        <div style="font-size: 14px;">{datetime.now().strftime('%H:%M:%S')}</div>
+    </div>
+""", unsafe_allow_html=True)
+
+# SEQUENCIA DE DATAS DO MÊS ATUAL (Lógica Automatizada)
+hoje = datetime.now()
+inicio_semana = hoje - timedelta(days=hoje.weekday())
+datas_semana = [(inicio_semana + timedelta(days=i)).strftime('%d/%m') for i in range(7)]
+dias = [f"Segunda ({datas_semana[0]})", f"Terça ({datas_semana[1]})", f"Quarta ({datas_semana[2]})", 
+        f"Quinta ({datas_semana[3]})", f"Sexta ({datas_semana[4]})", f"Sábado ({datas_semana[5]})", f"Domingo ({datas_semana[6]})"]
+
+st.markdown('<div class="section-title">SELECIONAR DIA DA SEMANA ATUAL</div>', unsafe_allow_html=True)
+dia_selecionado = st.pills("", dias, selection_mode="single", default=dias[0], label_visibility="collapsed")
+
+# HORÁRIOS DO TURNO
+horas_turno = [f"{h}:00" for h in range(14, 23)]
+
+# INICIALIZAÇÃO DOS DADOS NO SESSION STATE
+if "df_picking" not in st.session_state:
+    st.session_state.df_picking = pd.DataFrame({
+        "Hora": horas_turno, "DMO": [880, 1000, 1300, 1400, 675, 854, 1700, 1700, 1200],
+        "Real": [986, 1100, 1500, 1500, 1100, 1200, 1800, 2100, 1200],
+        "HC DMO": [10]*9, "HC Real": [11]*9, "Status": ["OK"]*9, "Observação": [""]*9
+    })
+
+if "df_checking" not in st.session_state:
+    st.session_state.df_checking = pd.DataFrame({
+        "Hora": horas_turno, "DMO": [900, 950, 1200, 1100, 700, 800, 1500, 1600, 1100],
+        "Real": [920, 940, 1300, 1050, 850, 900, 1400, 1700, 1150],
+        "HC DMO": [8]*9, "HC Real": [8]*9, "Status": ["OK"]*9, "Observação": [""]*9
+    })
+
+if "df_supervisores" not in st.session_state:
+    st.session_state.df_supervisores = pd.DataFrame({
+        "SUPERVISOR": ["GUIOBERTO", "MÁRIO", "MIGUEL", "SILVIO"],
+        "04 OPA": ["OK", "OK", "OK", "OK"],
+        "DDS – SEMANAL": ["OK", "OK", "OK", "OK"],
+        "Safety Walk": ["OK", "OK", "OK", "OK"],
+        "PA OPA HSE": ["OK", "OK", "OK", "OK"],
+        "LIDER NO PROC": ["OK", "OK", "OK", "OK"],
+        "CUIDADO ATIVO": ["OK", "OK", "OK", "OK"],
+        "DIF QUALIDADE": ["OK", "OK", "OK", "OK"]
+    })
+
+# PROCESSAMENTO DINÂMICO DE CÁLCULOS
+for chave in ["df_picking", "df_checking"]:
+    st.session_state[chave]["Delta"] = st.session_state[chave]["Real"] - st.session_state[chave]["DMO"]
+    st.session_state[chave]["% Realização"] = ((st.session_state[chave]["Real"] / st.session_state[chave]["DMO"]) * 100).round(1)
+
+# CRIAÇÃO DAS ABAS PRINCIPAIS
+abas = st.tabs(["Acompanhamento HH", "EOS - Passagem de Turno / Checklist"])
+
+with abas[0]:
+    sub_aba_picking, sub_aba_checking = st.tabs(["Picking", "Checking"])
+    config_abas = {
+        "Picking": (sub_aba_picking, "df_picking", "#E06666"),
+        "Checking": (sub_aba_checking, "df_checking", "#F4A261")
+    }
+    
+    for nome_aba, (componente_aba, state_key, cor_barra) in config_abas.items():
+        with componente_aba:
+            df_atual = st.session_state[state_key]
+            
+            # KPI Dinâmicos baseados nas imagens anexadas
+            thp_dmo_total = int(df_atual["DMO"].sum())
+            thp_real_total = int(df_atual["Real"].sum())
+            
+            st.markdown(f"""
+                <div class="kpi-container">
+                    <div class="kpi-box">
+                        <div class="kpi-title">THP DMO</div>
+                        <div class="kpi-value-dmo">{thp_dmo_total}</div>
+                    </div>
+                    <div class="kpi-box">
+                        <div class="kpi-title">THP Real</div>
+                        <div class="kpi-value-real">{thp_real_total}</div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # CARD DO GRÁFICO
+            st.markdown('<div class="section-card">', unsafe_allow_html=True)
+            st.markdown(f'<div class="section-title">{nome_aba.upper()} – APONTAMENTO POR HORA</div>', unsafe_allow_html=True)
+            
+            fig = go.Figure()
+            fig.add_trace(go.Bar(x=df_atual["Hora"], y=df_atual["DMO"], name="DMO", marker_color="#B0B0B0"))
+            fig.add_trace(go.Bar(x=df_atual["Hora"], y=df_atual["Real"], name="Real", marker_color=cor_barra))
+            fig.add_trace(go.Scatter(x=df_atual["Hora"], y=df_atual["% Realização"], name="% Realização", 
+                                     line=dict(color="#274E13", width=3), yaxis="y2", mode="lines+markers+text",
+                                     text=[f"{v}%" for v in df_atual["% Realização"]], textposition="top center"))
+            
+            fig.update_layout(
+                yaxis=dict(title="Volume"),
+                yaxis2=dict(title="% Realização", overlaying="y", side="right", range=[70, 160]),
+                barmode="group",
+                margin=dict(l=10, r=10, t=10, b=10),
+                height=280,
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)'
+            )
+            st.plotly_chart(fig, use_container_width=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+            # CARD DA TABELA EDITÁVEL
+            st.markdown('<div class="section-card"><div class="section-title">EDITAR REGISTROS HORA A HORA</div>', unsafe_allow_html=True)
+            colunas_exibicao = ["Hora", "DMO", "Real", "Delta", "% Realização", "HC DMO", "HC Real", "Status", "Observação"]
+            
+            df_editado = st.data_editor(
+                df_atual[colunas_exibicao],
+                use_container_width=True,
+                num_rows="fixed",
+                disabled=["Hora", "Delta", "% Realização"],
+                key=f"editor_{state_key}"
+            )
+            st.session_state[state_key].update(df_editado)
+            st.markdown('</div>', unsafe_allow_html=True)
+
+with abas[1]:
+    # CONTROLE DE SUPERVISORES - SEMANA W
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
+    st.markdown(f'<div class="section-title">SUPERVISORES – SEMANA ATUAL ({inicio_semana.strftime("%d/%m")} - {(inicio_semana+timedelta(days=6)).strftime("%d/%m")})</div>', unsafe_allow_html=True)
+    st.caption("Preencha com 'OK' para validação positiva (Verde) ou mude o texto para alertar falhas (Vermelho).")
+    
+    # Formatação condicional baseada nas entradas da tabela de gerenciamento
+    def style_supervisores(df):
+        styles = pd.DataFrame('', index=df.index, columns=df.columns)
+        for col in df.columns:
+            if col != "SUPERVISOR":
+                # Aplica verde para OK e vermelho suave para o restante ou vazio
+                styles[col] = df[col].apply(lambda val: 'background-color: #00D12A; color: black; font-weight: bold;' if val == "OK" else 'background-color: #FF7B7B; color: black;')
+        return styles
+
+    df_super_atual = st.session_state.df_supervisores
+    
+    df_super_editado = st.data_editor(
+        df_super_atual,
+        use_container_width=True,
+        num_rows="fixed",
+        key="editor_supervisores"
+    )
+    st.session_state.df_supervisores.update(df_super_editado)
+    
+    # Renderização da tabela estilizada com as cores dinâmicas solicitadas
+    df_estilizado = df_super_editado.style.apply(style_supervisores, axis=None)
+    st.dataframe(df_estilizado, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# RESUMO FINAL DO TURNO DO CAD
+st.markdown('<div class="section-card"><div class="section-title">RESUMO DO TURNO CONSOLIDADO</div>', unsafe_allow_html=True)
+
+col1, col2, col3 = st.columns(3)
+with col1:
+    total_dmo_geral = st.session_state.df_picking["DMO"].sum() + st.session_state.df_checking["DMO"].sum()
+    st.metric("Meta DMO Geral (Vol)", f"{int(total_dmo_geral)}")
+with col2:
+    total_real_geral = st.session_state.df_picking["Real"].sum() + st.session_state.df_checking["Real"].sum()
+    porcentagem_total = ((total_real_geral / total_dmo_geral) * 100).round(1) if total_dmo_geral > 0 else 0
+    st.metric("Realizado Geral (Vol)", f"{int(total_real_geral)}", f"{porcentagem_total}% Eficiência")
+with col3:
+    gap_total = total_real_geral - total_dmo_geral
+    st.metric("Desvio Absoluto (Delta)", f"{int(gap_total)}", delta=int(gap_total))
+
+st.write("")
+st.write("**PRINCIPAIS OBSERVAÇÕES E PASSAGEM DE INFORMAÇÕES**")
+texto_obs = st.text_area(
+    label="Obs", label_visibility="collapsed",
+    placeholder="Informe aqui gargalos logísticos, quebras de esteiras, ausência de HC ou problemas operacionais críticos...",
+    height=100
+)
+
+if st.button("💾 Salvar e Consolidar Dados do Turno", use_container_width=True):
+    st.success(f"Dados consolidados com sucesso para {dia_selecionado}!")
+st.markdown('</div>', unsafe_allow_html=True)
