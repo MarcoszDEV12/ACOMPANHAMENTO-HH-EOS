@@ -4,685 +4,428 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acompanhamento HH - CAD FREVO</title>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
+        /* IDENTIDADE VISUAL SHOPEE / CAD FREVO (CSS Customizado do Streamlit adaptado) */
         body {
-            background-color: #f5f5f5;
-            color: #333333;
+            background-color: #F8F9FA;
+            font-family: sans-serif;
+            margin: 0;
             padding: 15px;
         }
-
-        /* Header Shopee Premium */
         .shopee-header {
-            background-color: #ee4d2d;
+            background-color: #EE4D2D;
             color: white;
-            padding: 14px 20px;
-            border-radius: 4px;
-            margin-bottom: 15px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-weight: bold;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+            margin-bottom: 15px;
+            font-family: sans-serif;
         }
-
-        .header-brand {
-            font-size: 20px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-        }
-
-        .header-badge {
-            background-color: white;
-            color: #ee4d2d;
-            padding: 2px 8px;
-            border-radius: 3px;
-            font-size: 13px;
-            font-weight: 900;
-            margin-right: 10px;
-        }
-
-        .header-info {
-            font-size: 14px;
-            display: flex;
-            gap: 15px;
-        }
-
-        .header-info span {
-            background-color: rgba(255, 255, 255, 0.2);
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-weight: 600;
-        }
-
-        /* Cards estruturais */
         .section-card {
-            background-color: white;
-            border-radius: 4px;
+            background-color: #EAEAEA;
             padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #D3D3D3;
             margin-bottom: 15px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
-            border-bottom: 1px solid #e0e0e0;
         }
-
         .section-title {
-            color: #ee4d2d;
-            font-size: 15px;
+            color: #D44B28;
             font-weight: bold;
-            border-left: 4px solid #ee4d2d;
-            padding-left: 10px;
-            margin-bottom: 15px;
+            border-left: 4px solid #D44B28;
+            padding-left: 8px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-family: sans-serif;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+        }
+        
+        /* Estilização das Abas (Tabs) */
+        .tabs-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 0px;
+        }
+        .tab-button {
+            background-color: #E0E0E0;
+            border-radius: 4px 4px 0px 0px;
+            padding: 6px 16px;
+            color: #555;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tab-button.active {
+            background-color: #D44B28 !important;
+            color: white !important;
+        }
+        .tab-content {
+            display: none;
+            background: transparent;
+            padding-top: 15px;
+        }
+        .tab-content.active {
+            display: block;
         }
 
+        /* Pills Seleção de Dia */
         .pills-container {
             display: flex;
             gap: 8px;
-            flex-wrap: wrap;
+            margin-bottom: 15px;
         }
-
-        .pill {
-            background-color: #e0e0e0;
-            color: #555555;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-            cursor: pointer;
+        .pill-button {
+            background-color: #E0E0E0;
+            color: #555;
             border: none;
-            transition: all 0.2s;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
             font-weight: 500;
         }
-
-        .pill.active {
-            background-color: #ee4d2d;
+        .pill-button.active {
+            background-color: #D44B28;
             color: white;
-            font-weight: bold;
-            box-shadow: 0 2px 4px rgba(238, 77, 45, 0.3);
         }
 
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        @media (max-width: 1024px) {
-            .grid-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* KPIs */
-        .kpi-container {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 15px;
-            background: #fafafa;
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #eaeaea;
-        }
-
-        .kpi-box {
-            flex: 1;
-        }
-
-        .kpi-label {
-            font-size: 13px;
-            color: #666;
-            font-weight: 500;
-            margin-bottom: 2px;
-        }
-
-        .kpi-value-dmo {
-            font-size: 32px;
-            font-weight: bold;
-            color: #000000;
-        }
-
-        .kpi-value-real {
-            font-size: 32px;
-            font-weight: bold;
-            color: #26a462;
-        }
-
-        /* Tabelas Dinâmicas */
+        /* Tabelas (Simulando o st.data_editor) */
         .table-responsive {
             overflow-x: auto;
+            background-color: white;
+            border-radius: 4px;
+            border: 1px solid #dcdcdc;
         }
-
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 5px;
         }
-
         .data-table th {
             background-color: #f6f6f6;
-            color: #666666;
-            font-weight: 600;
-            font-size: 12px;
-            padding: 8px 6px;
+            color: #666;
+            font-size: 13px;
+            padding: 10px;
             border: 1px solid #e8e8e8;
-            text-transform: uppercase;
         }
-
         .data-table td {
-            padding: 6px 5px;
+            padding: 8px;
             font-size: 13px;
             border: 1px solid #e8e8e8;
             text-align: center;
-            vertical-align: middle;
         }
-
-        .data-table tr:nth-child(even) {
-            background-color: #fafafa;
-        }
-
-        .col-hora {
-            font-weight: bold;
-            color: #222222;
-            background-color: #f5f5f5;
-        }
-
         .input-cell {
-            width: 75px;
+            width: 70px;
+            text-align: center;
             padding: 4px;
-            border: 1px solid #dcdcdc;
-            border-radius: 3px;
-            text-align: center;
-            font-size: 13px;
-            font-weight: bold;
-        }
-
-        .input-cell:focus {
-            border-color: #ee4d2d;
-            outline: none;
-            background-color: #fff9f6;
-        }
-
-        /* Status Badges */
-        .status-badge {
-            font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 11px;
-            display: inline-block;
-        }
-
-        .status-ok { background-color: #e6f6ee; color: #26a462; border: 1px solid #a3e0c2; }
-        .status-aten { background-color: #fff9e6; color: #ffb700; border: 1px solid #ffe699; }
-
-        .pos-value { color: #26a462; font-weight: bold; }
-        .neg-value { color: #ee4d2d; font-weight: bold; }
-
-        /* Tabela dos Supervisores */
-        .sup-header-bar {
-            background-color: #ff5722;
-            color: white;
-            font-weight: bold;
-            padding: 10px 15px;
-            font-size: 14px;
-            text-transform: uppercase;
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
-        }
-
-        .sup-sub-header {
-            background-color: #ee4d2d;
-            color: white;
-            font-weight: bold;
-            text-align: center;
-            padding: 6px;
-            font-size: 12px;
-            margin-bottom: 0px;
-        }
-
-        .sup-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .sup-table th {
-            background-color: #f3a27a;
-            color: #333;
-            font-weight: bold;
-            font-size: 12px;
-            padding: 10px 6px;
-            border: 1px solid #dcdcdc;
-        }
-
-        .sup-table td {
-            padding: 8px 6px;
-            font-size: 13px;
-            border: 1px solid #dcdcdc;
-            text-align: center;
-        }
-
-        .sup-name {
-            font-weight: bold;
-            color: #222;
-            text-align: left !important;
-            padding-left: 12px !important;
-            background-color: #fafafa;
-        }
-
-        .select-sup {
-            padding: 5px;
-            font-size: 12px;
-            font-weight: bold;
-            border-radius: 3px;
             border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .input-obs {
             width: 90%;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
+            padding: 4px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .disabled-cell {
+            background-color: #f5f5f5;
+            font-weight: bold;
         }
 
-        /* Resumo Consolidado */
-        .resumo-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
+        /* Info Box */
+        .info-box {
+            background-color: #e8f4fd;
+            border-left: 4px solid #2196f3;
+            color: #0c5460;
+            padding: 12px;
+            border-radius: 4px;
             margin-bottom: 15px;
         }
 
-        @media (max-width: 768px) {
-            .resumo-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .resumo-card-item {
-            background-color: #fafafa;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            padding: 15px;
-            text-align: center;
-        }
-
-        .resumo-meta {
-            font-size: 12px;
-            color: #666;
-            font-weight: bold;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-
-        .resumo-valor {
-            font-size: 24px;
-            font-weight: bold;
-            color: #222;
-        }
-
-        .obs-container {
-            background-color: #fff9f6;
-            border: 1px dashed #ff5722;
-            padding: 15px;
-            border-radius: 4px;
-            margin-top: 15px;
-        }
-
-        .obs-textarea {
-            width: 100%;
-            height: 80px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            padding: 10px;
-            font-size: 13px;
-            resize: vertical;
-            margin-top: 8px;
-        }
-
+        /* Botão Salvar */
         .btn-salvar {
-            background-color: #ee4d2d;
-            color: white;
-            border: none;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: bold;
+            background-color: white;
+            color: black;
+            border: 1px solid #ccc;
+            padding: 10px;
             width: 100%;
             border-radius: 4px;
             cursor: pointer;
-            margin-top: 15px;
-            text-transform: uppercase;
-            box-shadow: 0 2px 5px rgba(238, 77, 45, 0.2);
+            font-weight: bold;
+            margin-top: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-
         .btn-salvar:hover {
-            background-color: #d44325;
+            background-color: #f0f0f0;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            border: 1px solid #c3e6cb;
+            display: none;
         }
     </style>
 </head>
 <body>
 
     <div class="shopee-header">
-        <div class="header-brand">
-            <span class="header-badge">Shopee</span> ACOMPANHAMENTO HH
+        <div><span style="background-color:white; color:#EE4D2D; padding:2px 6px; border-radius:4px; margin-right:8px; font-size:12px;">Shopee</span> ACOMPANHAMENTO HH</div>
+        <div style="font-size: 14px;">CAD FREVO</div>
+        <div style="font-size: 14px;" id="live-clock">00:00:00</div>
+    </div>
+
+    <div class="section-title">SELECIONAR DIA</div>
+    <div class="pills-container" id="pills-dias">
         </div>
-        <div class="header-info">
-            <div>FILIAL: <span>CAD FREVO</span></div>
-            <div>TURNO: <span>T2 (14:00 - 22:00)</span></div>
-            <div>HORA ATUAL: <span id="live-clock">00:00:00</span></div>
+
+    <div class="tabs-container">
+        <button class="tab-button active" onclick="alternarAbaPrincipal('aba-hh', this)">Acompanhamento HH</button>
+        <button class="tab-button" onclick="alternarAbaPrincipal('aba-eos', this)">EOS - Passagem de Turno</button>
+    </div>
+
+    <div id="aba-hh" class="tab-content active">
+        <div class="tabs-container" style="margin-bottom: 15px;">
+            <button class="tab-button active" id="btn-sub-picking" onclick="alternarSubAba('picking', this)">Picking</button>
+            <button class="tab-button" id="btn-sub-checking" onclick="alternarSubAba('checking', this)">Checking</button>
+        </div>
+
+        <div id="sub-picking" class="sub-tab-content" style="display: block;">
+            <div class="section-card">
+                <div class="section-title">PICKING – APONTAMENTO POR HORA</div>
+                <div id="grafico-picking" style="width:100%; height:280px;"></div>
+            </div>
+            <div class="section-card">
+                <div class="section-title">APONTAMENTO POR HORA</div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Hora</th><th>DMO</th><th>Real</th><th>Delta</th><th>% Realização</th><th>HC DMO</th><th>HC Real</th><th>Status</th><th>Observação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-picking"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="sub-checking" class="sub-tab-content" style="display: none;">
+            <div class="section-card">
+                <div class="section-title">CHECKING – APONTAMENTO POR HORA</div>
+                <div id="grafico-checking" style="width:100%; height:280px;"></div>
+            </div>
+            <div class="section-card">
+                <div class="section-title">APONTAMENTO POR HORA</div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Hora</th><th>DMO</th><th>Real</th><th>Delta</th><th>% Realização</th><th>HC DMO</th><th>HC Real</th><th>Status</th><th>Observação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-checking"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="aba-eos" class="tab-content">
+        <div class="info-box">
+            Espaço reservado para a configuração de Passagem de Turno estruturada (EOS).
         </div>
     </div>
 
     <div class="section-card">
-        <div class="section-title">Selecionar Dia Operacional (Mês Atual)</div>
-        <div class="pills-container" id="dates-pills"></div>
-    </div>
-
-    <div class="grid-container">
-
-        <div class="section-card">
-            <div class="section-title">PICKING – APONTAMENTO POR HORA</div>
-            <div class="kpi-container">
-                <div class="kpi-box">
-                    <div class="kpi-label">THP DMO TOTAL</div>
-                    <div class="kpi-value-dmo" id="picking-thp-dmo">0</div>
-                </div>
-                <div class="kpi-box">
-                    <div class="kpi-label">THP REAL TOTAL</div>
-                    <div class="kpi-value-real" id="picking-thp-real">0</div>
-                </div>
-            </div>
-            <div class="table-responsive">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Hora</th>
-                            <th>DMO</th>
-                            <th>Real</th>
-                            <th>Delta</th>
-                            <th>% Real</th>
-                            <th>HC DMO</th>
-                            <th>HC Real</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="body-picking"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="section-card">
-            <div class="section-title">CHECKING – APONTAMENTO POR HORA</div>
-            <div class="kpi-container">
-                <div class="kpi-box">
-                    <div class="kpi-label">THP DMO TOTAL</div>
-                    <div class="kpi-value-dmo" id="checking-thp-dmo">0</div>
-                </div>
-                <div class="kpi-box">
-                    <div class="kpi-label">THP REAL TOTAL</div>
-                    <div class="kpi-value-real" id="checking-thp-real">0</div>
-                </div>
-            </div>
-            <div class="table-responsive">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Hora</th>
-                            <th>DMO</th>
-                            <th>Real</th>
-                            <th>Delta</th>
-                            <th>% Real</th>
-                            <th>HC DMO</th>
-                            <th>HC Real</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="body-checking"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="section-card" style="padding: 0; border: 1px solid #dcdcdc; overflow: hidden;">
-        <div class="sup-header-bar">Supervisores – Semana W</div>
-        <div class="sup-sub-header" id="semana-w-title">Semana Atual Operacional</div>
-        <div class="table-responsive">
-            <table class="sup-table">
-                <thead>
-                    <tr>
-                        <th style="text-align:left; padding-left:12px; width: 16%;">Supervisor</th>
-                        <th>04 OPA</th>
-                        <th>DDS – Semanal</th>
-                        <th>Safety Walk</th>
-                        <th>PA OPA HSE</th>
-                        <th>Líder no Proc</th>
-                        <th>Cuidado Ativo</th>
-                        <th>Dif Qualidade</th>
-                    </tr>
-                </thead>
-                <tbody id="body-supervisores"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="section-card" style="margin-top: 15px;">
-        <div class="section-title">Resumo Final Consolidado do Turno</div>
-        <div class="resumo-grid">
-            <div class="resumo-card-item">
-                <div class="resumo-meta">Meta Geral Acumulada</div>
-                <div class="resumo-valor" id="resumo-meta-geral">0</div>
-            </div>
-            <div class="resumo-card-item">
-                <div class="resumo-meta">Realizado Geral</div>
-                <div class="resumo-valor" style="color: #26a462;" id="resumo-real-geral">0</div>
-            </div>
-            <div class="resumo-card-item">
-                <div class="resumo-meta">Desvio Geral (Delta)</div>
-                <div class="resumo-valor" id="resumo-delta-geral">0</div>
-            </div>
-            <div class="resumo-card-item">
-                <div class="resumo-meta">Eficiência do CAD</div>
-                <div class="resumo-valor" style="color: #ee4d2d;" id="resumo-eficiencia-geral">0%</div>
-            </div>
-        </div>
-
-        <div class="obs-container">
-            <div style="font-weight: bold; font-size: 14px; color: #ff5722;">Passagem de Turno & Observações Logísticas</div>
-            <textarea class="obs-textarea" placeholder="Insira aqui os desafios vivenciados no turno, quebras operacionais ou prioridades para o próximo time..."></textarea>
-        </div>
-
-        <button class="btn-salvar" onclick="salvarDados()">💾 Salvar e Consolidar Turno no Sistema</button>
+        <div class="section-title">RESUMO DO TURNO</div>
+        <p style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">PRINCIPAIS OBSERVAÇÕES</p>
+        <textarea id="texto-obs" style="width: 100%; height: 100px; padding: 10px; border-radius: 4px; border: 1px solid #ccc; resize: vertical;" placeholder="Digite aqui os principais desafios, gargalos ou recados para o próximo turno..."></textarea>
+        
+        <button class="btn-salvar" onclick="salvarInformacoes()">💾 Salvar Informações do Turno</button>
+        <div id="alert-sucesso" class="alert-success"></div>
     </div>
 
     <script>
-        // Relógio do Sistema
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('live-clock').innerText = now.toTimeString().split(' ')[0];
-        }, 1000);
+        // Atualização do Relógio do Cabeçalho
+        function atualizarRelogio() {
+            const agora = new Date();
+            document.getElementById('live-clock').innerText = agora.toTimeString().split(' ')[0];
+        }
+        setInterval(atualizarRelogio, 1000);
+        atualizarRelogio();
 
-        // Lógica de Datas Dinâmicas (Gera a semana dinamicamente com base na data de hoje)
-        const diasSemana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
-        const hoje = new Date();
-        const diaDaSemanaIndex = hoje.getDay() === 0 ? 6 : hoje.getDay() - 1; 
-        const inicioSemana = new Date(hoje);
-        inicioSemana.setDate(hoje.getDate() - diaDaSemanaIndex);
-
-        const fimSemana = new Date(inicioSemana);
-        fimSemana.setDate(inicioSemana.getDate() + 6);
-        const fmt = d => d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth() + 1).toString().padStart(2, '0');
-        document.getElementById('semana-w-title').innerText = `Semana Operacional Corrente: de ${fmt(inicioSemana)} a ${fmt(fimSemana)}`;
-
-        const containerPills = document.getElementById('dates-pills');
-        diasSemana.forEach((dia, idx) => {
-            const currentDayDate = new Date(inicioSemana);
-            currentDayDate.setDate(inicioSemana.getDate() + idx);
+        // Configuração de Dias (Pills)
+        const dias = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+        let diaSelecionado = "Segunda";
+        const containerPills = document.getElementById('pills-dias');
+        
+        dias.forEach(dia => {
             const btn = document.createElement('button');
-            btn.className = `pill ${idx === diaDaSemanaIndex ? 'active' : ''}`;
-            btn.innerText = `${dia} (${fmt(currentDayDate)})`;
-            btn.onclick = () => {
-                document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+            btn.className = `pill-button ${dia === diaSelecionado ? 'active' : ''}`;
+            btn.innerText = dia;
+            btn.onclick = function() {
+                document.querySelectorAll('.pill-button').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
+                diaSelecionado = dia;
             };
             containerPills.appendChild(btn);
         });
 
-        // Datasets Iniciais Reativos
-        const dadosPicking = [
-            { hora: "14:00", dmo: 880, real: 986, hcDmo: 10, hcReal: 11 },
-            { hora: "15:00", dmo: 1000, real: 1100, hcDmo: 10, hcReal: 11 },
-            { hora: "16:00", dmo: 1300, real: 1500, hcDmo: 12, hcReal: 12 },
-            { hora: "17:00", dmo: 1400, real: 1500, hcDmo: 12, hcReal: 12 },
-            { hora: "18:00", dmo: 675, real: 1100, hcDmo: 8, hcReal: 9 },
-            { hora: "19:00", dmo: 854, real: 1200, hcDmo: 8, hcReal: 9 },
-            { hora: "20:00", dmo: 1700, real: 1800, hcDmo: 15, hcReal: 15 },
-            { hora: "21:00", dmo: 1700, real: 2100, hcDmo: 15, hcReal: 16 },
-            { hora: "22:00", dmo: 1200, real: 1200, hcDmo: 10, hcReal: 10 }
-        ];
+        // Horários do Turno e Dataframes Iniciais do Cache (Session State)
+        const horasTurno = Array.from({length: 9}, (_, i) => `${i + 14}:00`);
+        
+        const df_picking = {
+            hora: [...horasTurno],
+            dmo: [880, 1000, 1300, 1400, 675, 854, 1700, 1700, 1200],
+            real: [986, 1100, 1500, 1500, 1100, 1200, 1800, 2100, 1200],
+            hcDmo: [0,0,0,0,0,0,0,0,0],
+            hcReal: [0,0,0,0,0,0,0,0,0],
+            status: ["OK","OK","OK","OK","OK","OK","OK","OK","OK"],
+            observacao: ["","","","","","","","",""]
+        };
 
-        const dadosChecking = [
-            { hora: "14:00", dmo: 900, real: 920, hcDmo: 8, hcReal: 8 },
-            { hora: "15:00", dmo: 950, real: 940, hcDmo: 8, hcReal: 8 },
-            { hora: "16:00", dmo: 1200, real: 1300, hcDmo: 10, hcReal: 10 },
-            { hora: "17:00", dmo: 1100, real: 1050, hcDmo: 10, hcReal: 10 },
-            { hora: "18:00", dmo: 700, real: 850, hcDmo: 6, hcReal: 7 },
-            { hora: "19:00", dmo: 800, real: 900, hcDmo: 6, hcReal: 7 },
-            { hora: "20:00", dmo: 1500, real: 1400, hcDmo: 12, hcReal: 11 },
-            { hora: "21:00", dmo: 1600, real: 1700, hcDmo: 12, hcReal: 13 },
-            { hora: "22:00", dmo: 1100, real: 1150, hcDmo: 10, hcReal: 9 }
-        ];
+        const df_checking = {
+            hora: [...horasTurno],
+            dmo: [900, 950, 1200, 1100, 700, 800, 1500, 1600, 1100],
+            real: [920, 940, 1300, 1050, 850, 900, 1400, 1700, 1150],
+            hcDmo: [0,0,0,0,0,0,0,0,0],
+            hcReal: [0,0,0,0,0,0,0,0,0],
+            status: ["OK","OK","OK","OK","OK","OK","OK","OK","OK"],
+            observacao: ["","","","","","","","",""]
+        };
 
-        const supervisores = ["GUIOBERTO", "MÁRIO", "MIGUEL", "SILVIO"];
-        const colunasSupervisor = ["opa", "dds", "safety", "pa", "lider", "cuidado", "qualidade"];
+        // Gerenciamento de Alternância de Abas Principais
+        function alternarAbaPrincipal(idAba, botao) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tabs-container:first-of-type .tab-button').forEach(b => b.classList.remove('active'));
+            document.getElementById(idAba).classList.add('active');
+            botao.classList.add('active');
+            if(idAba === 'aba-hh') {
+                // Força o redimensionamento dos gráficos Plotly ao voltar para a aba ativa
+                window.dispatchEvent(new Event('resize'));
+            }
+        }
 
-        // Renderização Inicial Dinâmica (Gera a estrutura estática apenas uma vez para manter foco nos inputs)
-        function construirEstruturaTabela(idCorpo, dados, tipo) {
-            const tbody = document.getElementById(idCorpo);
+        // Gerenciamento de Alternância de Sub-abas (Picking / Checking)
+        function alternarSubAba(tipo, botao) {
+            document.querySelectorAll('.sub-tab-content').forEach(c => d = c.style.display = 'none');
+            document.querySelectorAll('#aba-hh .tabs-container .tab-button').forEach(b => b.classList.remove('active'));
+            document.getElementById(`sub-${tipo}`).style.display = 'block';
+            botao.classList.add('active');
+            window.dispatchEvent(new Event('resize'));
+        }
+
+        // Função de Recálculo e Renderização de Tabelas/Gráficos em Tempo Real
+        function processarDados(tipo, dataset, corBarra) {
+            const tbody = document.getElementById(`tbody-${tipo}`);
             tbody.innerHTML = "";
-            dados.forEach((row, index) => {
+
+            const deltas = [];
+            const realizacoes = [];
+            const textRealizacoes = [];
+
+            for (let i = 0; i < dataset.hora.length; i++) {
+                // Recálculos automáticos em tempo real
+                const delta = dataset.real[i] - dataset.dmo[i];
+                const realizacao = ((dataset.real[i] / dataset.dmo[i]) * 100).toFixed(1);
+                
+                deltas.push(delta);
+                realizacoes.push(parseFloat(realizacao));
+                textRealizacoes.push(`${realizacao}%`);
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="col-hora">${row.hora}</td>
-                    <td><input type="number" class="input-cell" value="${row.dmo}" oninput="atualizarDado('${tipo}', ${index}, 'dmo', this.value)"></td>
-                    <td><input type="number" class="input-cell" value="${row.real}" oninput="atualizarDado('${tipo}', ${index}, 'real', this.value)"></td>
-                    <td id="${tipo}-delta-${index}">0</td>
-                    <td id="${tipo}-porc-${index}">0%</td>
-                    <td><input type="number" class="input-cell" value="${row.hcDmo}" oninput="atualizarDado('${tipo}', ${index}, 'hcDmo', this.value)"></td>
-                    <td><input type="number" class="input-cell" value="${row.hcReal}" oninput="atualizarDado('${tipo}', ${index}, 'hcReal', this.value)"></td>
-                    <td><span class="status-badge" id="${tipo}-status-${index}">-</span></td>
+                    <td class="disabled-cell">${dataset.hora[i]}</td>
+                    <td><input type="number" class="input-cell" value="${dataset.dmo[i]}" onchange="atualizarValor('${tipo}', ${i}, 'dmo', this.value)"></td>
+                    <td><input type="number" class="input-cell" value="${dataset.real[i]}" onchange="atualizarValor('${tipo}', ${i}, 'real', this.value)"></td>
+                    <td class="disabled-cell">${delta}</td>
+                    <td class="disabled-cell">${realizacao}%</td>
+                    <td><input type="number" class="input-cell" value="${dataset.hcDmo[i]}" onchange="atualizarValor('${tipo}', ${i}, 'hcDmo', this.value)"></td>
+                    <td><input type="number" class="input-cell" value="${dataset.hcReal[i]}" onchange="atualizarValor('${tipo}', ${i}, 'hcReal', this.value)"></td>
+                    <td><input type="text" class="input-cell" value="${dataset.status[i]}" onchange="atualizarValor('${tipo}', ${i}, 'status', this.value)"></td>
+                    <td><input type="text" class="input-obs" value="${dataset.observacao[i]}" onchange="atualizarValor('${tipo}', ${i}, 'observacao', this.value)"></td>
                 `;
                 tbody.appendChild(tr);
-            });
-        }
-
-        // Atualização reativa direcionada por ID (Sem re-renderizar o HTML interno para não perder o foco do teclado)
-        window.atualizarDado = function(tipo, index, campo, valor) {
-            const lista = tipo === 'picking' ? dadosPicking : dadosChecking;
-            lista[index][campo] = Number(valor);
-            
-            // Recalcula linha específica de forma direta
-            const row = lista[index];
-            const delta = row.real - row.dmo;
-            const porc = row.dmo > 0 ? ((row.real / row.dmo) * 100).toFixed(1) : 0;
-
-            const cellDelta = document.getElementById(`${tipo}-delta-${index}`);
-            const cellPorc = document.getElementById(`${tipo}-porc-${index}`);
-            const cellStatus = document.getElementById(`${tipo}-status-${index}`);
-
-            cellDelta.innerText = delta >= 0 ? '+' + delta : delta;
-            cellDelta.className = delta >= 0 ? "pos-value" : "neg-value";
-
-            cellPorc.innerText = porc + '%';
-            cellPorc.className = porc >= 100 ? "pos-value" : "neg-value";
-
-            cellStatus.innerText = porc >= 100 ? "OK" : "ATEN";
-            cellStatus.className = `status-badge ${porc >= 100 ? 'status-ok' : 'status-aten'}`;
-
-            // Dispara soma dos blocos gerais e resumo final
-            calcularTotaisGlobais();
-        };
-
-        function calcularTotaisGlobais() {
-            // Totais Dinâmicos do Picking
-            const pickingDmo = dadosPicking.reduce((acc, curr) => acc + curr.dmo, 0);
-            const pickingReal = dadosPicking.reduce((acc, curr) => acc + curr.real, 0);
-            document.getElementById('picking-thp-dmo').innerText = pickingDmo.toLocaleString();
-            document.getElementById('picking-thp-real').innerText = pickingReal.toLocaleString();
-
-            // Totais Dinâmicos do Checking
-            const checkingDmo = dadosChecking.reduce((acc, curr) => acc + curr.dmo, 0);
-            const checkingReal = dadosChecking.reduce((acc, curr) => acc + curr.real, 0);
-            document.getElementById('checking-thp-dmo').innerText = checkingDmo.toLocaleString();
-            document.getElementById('checking-thp-real').innerText = checkingReal.toLocaleString();
-
-            // Bloco de Resumo Consolidado (Geral CAD)
-            const metaGeral = pickingDmo + checkingDmo;
-            const realGeral = pickingReal + checkingReal;
-            const deltaGeral = realGeral - metaGeral;
-            const eficiencia = metaGeral > 0 ? ((realGeral / metaGeral) * 100).toFixed(1) : 0;
-
-            document.getElementById('resumo-meta-geral').innerText = metaGeral.toLocaleString();
-            document.getElementById('resumo-real-geral').innerText = realGeral.toLocaleString();
-            
-            const txtDelta = document.getElementById('resumo-delta-geral');
-            txtDelta.innerText = (deltaGeral >= 0 ? '+' : '') + deltaGeral.toLocaleString();
-            txtDelta.className = `resumo-valor ${deltaGeral >= 0 ? 'pos-value' : 'neg-value'}`;
-
-            document.getElementById('resumo-eficiencia-geral').innerText = `${eficiencia}%`;
-        }
-
-        // Tabela de Supervisores Interativa (Altera a cor do elemento individualmente ao mudar o status)
-        function renderizarSupervisores() {
-            const tbody = document.getElementById('body-supervisores');
-            tbody.innerHTML = "";
-
-            supervisores.forEach(sup => {
-                const tr = document.createElement('tr');
-                let tdHtml = `<td class="sup-name">${sup}</td>`;
-                
-                colunasSupervisor.forEach(col => {
-                    tdHtml += `
-                        <td>
-                            <select class="select-sup" onchange="atualizarCorSupervisor(this)" style="background-color: #00d12a; color: black; font-weight: bold;">
-                                <option value="OK">OK</option>
-                                <option value="PENDENTE">PENDENTE</option>
-                                <option value="FALHA">FALHA</option>
-                            </select>
-                        </td>
-                    `;
-                });
-                tr.innerHTML = tdHtml;
-                tbody.appendChild(tr);
-            });
-        }
-
-        window.atualizarCorSupervisor = function(elemento) {
-            if (elemento.value === "OK") {
-                elemento.style.backgroundColor = "#00d12a";
-                elemento.style.color = "black";
-            } else if (elemento.value === "PENDENTE") {
-                elemento.style.backgroundColor = "#ffe699";
-                elemento.style.color = "#b77a00";
-            } else {
-                elemento.style.backgroundColor = "#ff7b7b";
-                elemento.style.color = "#b70000";
             }
+
+            // Renderizar Gráficos Plotly Idênticos à Configuração go.Figure
+            const traceDMO = {
+                x: dataset.hora,
+                y: dataset.dmo,
+                name: 'DMO',
+                type: 'bar',
+                marker: { color: '#B0B0B0' }
+            };
+
+            const traceReal = {
+                x: dataset.hora,
+                y: dataset.real,
+                name: 'Real',
+                type: 'bar',
+                marker: { color: corBarra }
+            };
+
+            const tracePorc = {
+                x: dataset.hora,
+                y: realizacoes,
+                name: '% Realização',
+                type: 'scatter',
+                mode: 'lines+markers+text',
+                text: textRealizacoes,
+                textposition: 'top center',
+                line: { color: '#274E13', width: 3 },
+                yaxis: 'y2'
+            };
+
+            const data = [traceDMO, traceReal, tracePorc];
+
+            const layout = {
+                yaxis: { title: 'Volume' },
+                yaxis2: {
+                    title: '% Realização',
+                    overlaying: 'y',
+                    side: 'right',
+                    range: [70, 160]
+                },
+                barmode: 'group',
+                margin: { l: 40, r: 40, t: 10, b: 30 },
+                height: 280,
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                legend: { orientation: 'h', x: 0, y: 1.1 }
+            };
+
+            Plotly.newPlot(`grafico-${tipo}`, data, layout, {responsive: true, displayModeBar: false});
+        }
+
+        // Sincroniza inputs e atualiza a view mantendo persistência das alterações
+        window.atualizarValor = function(tipo, index, campo, valor) {
+            const dataset = tipo === 'picking' ? df_picking : df_checking;
+            const corBarra = tipo === 'picking' ? '#E06666' : '#F4A261';
+            
+            if (campo === 'dmo' || campo === 'real' || campo === 'hcDmo' || campo === 'hcReal') {
+                dataset[campo][index] = Number(valor);
+            } else {
+                dataset[campo][index] = valor;
+            }
+            processarDados(tipo, dataset, corBarra);
         };
 
-        window.salvarDados = function() {
-            alert("💾 [CAD FREVO] Dados de acompanhamento consolidados e sincronizados com sucesso!");
-        };
+        // Salvar Informações do Turno
+        function salvarInformacoes() {
+            const alertBox = document.getElementById('alert-sucesso');
+            alertBox.innerText = `Dados salvos temporariamente para ${diaSelecionado}!`;
+            alertBox.style.display = 'block';
+            setTimeout(() => { alertBox.style.display = 'none'; }, 4000);
+        }
 
-        // Inicialização da GUI
-        construirEstruturaTabela("body-picking", dadosPicking, "picking");
-        construirEstruturaTabela("body-checking", dadosChecking, "checking");
-        renderizarSupervisores();
-
-        // Força primeiro cálculo automático na carga da página
-        dadosPicking.forEach((_, i) => window.atualizarDado('picking', i, 'dmo', dadosPicking[i].dmo));
-        dadosChecking.forEach((_, i) => window.atualizarDado('checking', i, 'dmo', dadosChecking[i].dmo));
+        // Renderização Inicial das Sub-abas
+        processarDados('picking', df_picking, '#E06666');
+        processarDados('checking', df_checking, '#F4A261');
     </script>
 </body>
 </html>
