@@ -1,11 +1,522 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acompanhamento HH - EOS</title>
-    
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acompanhamento HH - EOS</title>
+
 <style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+:root{
+  --shopee:#EE4D2D;
+  --shopee-dark:#D84325;
+  --shopee-light:#FFF4F1;
+  --bg:#F6F6F6;
+  --card:#FFFFFF;
+  --border:#ECECEC;
+  --text:#222;
+  --text-soft:#777;
+  --green:#16A34A;
+  --red:#EF4444;
+  --shadow:0 6px 20px rgba(0,0,0,.06);
+}
+
+body{
+  font-family:Inter,system-ui,sans-serif;
+  background:linear-gradient(to bottom,#fff,#f6f6f6);
+  padding:18px;
+  color:var(--text);
+  font-size:13px;
+}
+
+.hh-header{
+  background:linear-gradient(135deg,var(--shopee),#FF7A59);
+  border-radius:26px;
+  padding:24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  color:white;
+  box-shadow:0 14px 35px rgba(238,77,45,.25);
+  position:relative;
+  overflow:hidden;
+  margin-bottom:18px;
+}
+
+.hh-header::before{
+  content:'';
+  position:absolute;
+  right:-60px;
+  top:-60px;
+  width:220px;
+  height:220px;
+  border-radius:50%;
+  background:rgba(255,255,255,.08);
+}
+
+.hh-header::after{
+  content:'';
+  position:absolute;
+  left:35%;
+  bottom:-80px;
+  width:220px;
+  height:220px;
+  border-radius:50%;
+  background:rgba(255,255,255,.05);
+}
+
+.logo-box{
+  background:#fff;
+  border-radius:14px;
+  padding:8px 16px;
+  margin-right:14px;
+  box-shadow:0 4px 10px rgba(0,0,0,.08);
+}
+
+.logo-box span{
+  color:var(--shopee);
+  font-size:16px;
+  font-weight:800;
+}
+
+.hh-clock{
+  font-size:24px;
+  font-weight:800;
+  background:rgba(255,255,255,.12);
+  padding:12px 18px;
+  border-radius:16px;
+  backdrop-filter:blur(10px);
+}
+
+.main{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.sync-bar{
+  background:#fff;
+  border-radius:18px;
+  padding:14px 18px;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.sync-dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+}
+
+.s-green{background:#16A34A;}
+.s-yellow{background:#F59E0B;}
+.s-red{background:#EF4444;}
+
+.tabs-row{
+  display:flex;
+  gap:12px;
+}
+
+.tab-btn{
+  flex:1;
+  border:none;
+  background:#fff;
+  border-radius:18px;
+  padding:16px;
+  font-weight:800;
+  color:#666;
+  cursor:pointer;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  transition:.2s;
+}
+
+.tab-btn:hover{
+  transform:translateY(-2px);
+}
+
+.tab-btn.active{
+  background:linear-gradient(135deg,var(--shopee),#FF7A59);
+  color:#fff;
+  border:none;
+}
+
+.tab-panel{
+  display:none;
+}
+
+.tab-panel.active{
+  display:block;
+}
+
+.card{
+  background:#fff;
+  border-radius:24px;
+  padding:22px;
+  border:1px solid #f1f1f1;
+  box-shadow:var(--shadow);
+  margin-bottom:18px;
+}
+
+.sec{
+  color:var(--shopee);
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  font-size:12px;
+  margin-bottom:18px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.sec::before{
+  content:'';
+  width:6px;
+  height:18px;
+  border-radius:999px;
+  background:var(--shopee);
+}
+
+.dtab-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.dtab{
+  padding:10px 14px;
+  border-radius:12px;
+  border:1px solid #eee;
+  background:#fff;
+  font-weight:700;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.dtab:hover{
+  border-color:var(--shopee);
+  color:var(--shopee);
+}
+
+.dtab.active{
+  background:linear-gradient(135deg,var(--shopee),#FF7A59);
+  color:#fff;
+  border:none;
+  box-shadow:0 5px 14px rgba(238,77,45,.25);
+}
+
+.atab-row{
+  display:flex;
+  gap:10px;
+  margin-bottom:18px;
+}
+
+.atab{
+  padding:10px 18px;
+  border-radius:999px;
+  background:#FFF1EC;
+  border:none;
+  color:var(--shopee);
+  font-weight:800;
+  cursor:pointer;
+}
+
+.atab.active{
+  background:var(--shopee);
+  color:#fff;
+  box-shadow:0 6px 18px rgba(238,77,45,.2);
+}
+
+.metrics{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+  margin-bottom:18px;
+}
+
+.mc{
+  background:linear-gradient(to bottom,#fff,#FFF8F6);
+  border:1px solid #FFE3DA;
+  border-radius:20px;
+  padding:18px;
+}
+
+.mc-label{
+  color:#888;
+  font-size:12px;
+  margin-bottom:8px;
+}
+
+.mc-val{
+  font-size:25px;
+  font-weight:900;
+}
+
+.mc-val.pos{color:var(--green);}
+.mc-val.neg{color:var(--red);}
+
+.thp-in{
+  width:100%;
+  border:none;
+  background:transparent;
+  outline:none;
+  font-size:25px;
+  font-weight:900;
+}
+
+.legend-row{
+  display:flex;
+  gap:18px;
+  margin-bottom:12px;
+  color:#666;
+}
+
+.ldot{
+  width:12px;
+  height:12px;
+  border-radius:4px;
+  display:inline-block;
+  margin-right:5px;
+}
+
+.chart-wrap{
+  background:#fff;
+  border-radius:20px;
+  border:1px solid #f1f1f1;
+  padding:18px;
+}
+
+.table-wrap{
+  overflow:auto;
+  border-radius:20px;
+  border:1px solid #f1f1f1;
+}
+
+.table-wrap::-webkit-scrollbar{
+  height:8px;
+}
+
+.table-wrap::-webkit-scrollbar-thumb{
+  background:#ddd;
+  border-radius:999px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+}
+
+th{
+  background:#FFF5F2;
+  color:var(--shopee);
+  font-size:12px;
+  font-weight:900;
+  padding:14px 10px;
+  text-align:left;
+  border-bottom:1px solid #FFE3DA;
+}
+
+td{
+  padding:12px 10px;
+  border-bottom:1px solid #f3f3f3;
+}
+
+tr:hover td{
+  background:#FFFBFA;
+}
+
+.td-in,
+.obs-in,
+.eos-in,
+.eos-just,
+.obs-main{
+  width:100%;
+  border:1px solid #ececec;
+  border-radius:10px;
+  padding:8px 10px;
+  background:#fafafa;
+  font-family:inherit;
+  outline:none;
+  transition:.2s;
+}
+
+.td-in:focus,
+.obs-in:focus,
+.eos-in:focus,
+.eos-just:focus,
+.obs-main:focus{
+  border-color:var(--shopee);
+  background:#fff;
+  box-shadow:0 0 0 4px rgba(238,77,45,.08);
+}
+
+.badge{
+  padding:7px 12px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+}
+
+.ok{
+  background:#DCFCE7;
+  color:#166534;
+}
+
+.fail{
+  background:#FEE2E2;
+  color:#991B1B;
+}
+
+.na{
+  background:#f1f1f1;
+  color:#666;
+}
+
+.sum-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+}
+
+.sum-item{
+  background:linear-gradient(to bottom,#fff,#FFF8F6);
+  border:1px solid #FFE3DA;
+  border-radius:18px;
+  padding:18px;
+}
+
+.sum-label{
+  font-size:12px;
+  color:#777;
+  margin-bottom:6px;
+}
+
+.sum-val{
+  font-size:22px;
+  font-weight:900;
+}
+
+.eos-table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+.eos-hdr{
+  background:linear-gradient(135deg,var(--shopee),#FF7A59);
+  color:#fff;
+}
+
+.eos-hdr2{
+  background:#FFF1EC;
+  color:var(--shopee);
+}
+
+.eos-row-label{
+  font-weight:800;
+}
+
+.eos-calc.pos{
+  color:#16A34A;
+  font-weight:800;
+}
+
+.eos-calc.neg{
+  color:#EF4444;
+  font-weight:800;
+}
+
+.sup-ok{
+  background:#DCFCE7;
+}
+
+.date-display{
+  background:#FFF1EC;
+  padding:14px 18px;
+  border-radius:14px;
+  display:inline-flex;
+  color:var(--shopee);
+  font-weight:900;
+  margin-bottom:18px;
+}
+
+button{
+  transition:.2s;
+}
+
+button:hover{
+  transform:translateY(-1px);
+}
+
+.u-avatar{
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:11px;
+  font-weight:800;
+}
+
+@media(max-width:1100px){
+
+  .metrics{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .sum-grid{
+    grid-template-columns:1fr;
+  }
+
+}
+
+@media(max-width:700px){
+
+  body{
+    padding:10px;
+  }
+
+  .hh-header{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:14px;
+  }
+
+  .metrics{
+    grid-template-columns:1fr;
+  }
+
+  .tabs-row{
+    flex-direction:column;
+  }
+
+}
+
+@keyframes blink{
+  0%,100%{opacity:1}
+  50%{opacity:.3}
+}
+
+.blinking{
+  animation:blink 1s infinite;
+}
+</style>
+</head>
+
+<body>
+
+<html><head><style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: var(--font-sans, system-ui); background: transparent; font-size: 13px; }
 
@@ -116,7 +627,7 @@ input[type=number] { -moz-appearance: textfield; }
       <div style="font-size:10px;opacity:.85">T2 &nbsp;|&nbsp; 14:00 – 22:00</div>
     </div>
   </div>
-  <div style="font-size:12px;opacity:.9">CAD FREVO</div>
+  <div style="font-size:12px;opacity:.9">CAD FREVO - BRFPE1</div>
   <div class="hh-clock" id="clock">10:44:41</div>
 </div>
 
