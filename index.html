@@ -1,76 +1,769 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard CAD FREVO</title>
-    <style>
-        :root { --shopee: #EE4D2D; --bg: #F4F6F8; --card: #FFFFFF; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; }
-        
-        /* Header */
-        .header { background: var(--shopee); color: white; padding: 15px 30px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        
-        /* Grid */
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-        .card { background: var(--card); padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-top: 4px solid var(--shopee); }
-        
-        /* Títulos */
-        h2 { color: #333; margin-top: 0; font-size: 18px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        
-        /* Tabela Estilizada */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { background: #f8f8f8; color: #555; padding: 10px; font-size: 13px; text-align: left; }
-        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 13px; }
-        
-        /* Status */
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .ok { background: #d4edda; color: #155724; }
-    </style>
-</head>
-<body>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acompanhamento HH - EOS</title>
+    
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans, system-ui); background: transparent; font-size: 13px; }
 
-<div class="header">
-    <div><strong>Shopee</strong> | ACOMPANHAMENTO HH & EOS</div>
-    <div id="data-hora">26/05/2026 - 14:05</div>
+.hh-header { background: #E8521A; color: white; padding: 11px 18px; display: flex; align-items: center; justify-content: space-between; border-radius: 12px 12px 0 0; }
+.logo-box { background: white; border-radius: 6px; padding: 3px 9px; margin-right: 11px; }
+.logo-box span { color: #E8521A; font-weight: 500; font-size: 14px; }
+.hh-clock { font-size: 17px; font-weight: 500; font-family: monospace; }
+
+.main { padding: 12px; background: var(--color-background-tertiary, #f5f5f3); border-radius: 0 0 12px 12px; }
+
+.tabs-row { display: flex; gap: 0; margin-bottom: 12px; border-radius: 8px; overflow: hidden; border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); }
+.tab-btn { flex: 1; padding: 9px 12px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--color-text-secondary); border-right: 0.5px solid var(--color-border-tertiary); transition: all .15s; }
+.tab-btn:last-child { border-right: none; }
+.tab-btn:hover { background: var(--color-background-secondary); color: #E8521A; }
+.tab-btn.active { background: #E8521A; color: white; }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.card { background: var(--color-background-primary); border-radius: 12px; border: 0.5px solid var(--color-border-tertiary); padding: 13px 15px; margin-bottom: 10px; }
+.sec { font-size: 11px; font-weight: 500; color: #E8521A; text-transform: uppercase; letter-spacing: 1px; border-left: 3px solid #E8521A; padding-left: 7px; margin-bottom: 10px; }
+
+.dtab-row { display: flex; gap: 4px; flex-wrap: wrap; }
+.dtab { padding: 4px 9px; border-radius: 6px; font-size: 12px; cursor: pointer; border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); color: var(--color-text-secondary); transition: all .12s; }
+.dtab:hover { border-color: #E8521A; color: #E8521A; }
+.dtab.active { background: #E8521A; color: white; border-color: #E8521A; }
+
+.atab-row { display: flex; gap: 8px; margin-bottom: 13px; }
+.atab { padding: 5px 15px; border-radius: 20px; font-size: 12px; cursor: pointer; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); transition: all .12s; }
+.atab:hover { border-color: #E8521A; color: #E8521A; }
+.atab.active { background: #FDF3EE; color: #E8521A; border-color: #E8521A; }
+
+.metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 9px; margin-bottom: 13px; }
+.mc { background: var(--color-background-secondary); border-radius: 8px; padding: 9px 11px; }
+.mc-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 3px; }
+.mc-val { font-size: 17px; font-weight: 500; color: var(--color-text-primary); }
+.mc-val.pos { color: #1D9E75; }
+.mc-val.neg { color: #E24B4A; }
+input[type=number].thp-in { width: 100%; border: none; background: transparent; font-size: 17px; font-weight: 500; color: var(--color-text-primary); outline: none; padding: 0; }
+input[type=number].thp-in:focus { border-bottom: 1.5px solid #E8521A; }
+input[type=number].thp-in.pos { color: #1D9E75; }
+input[type=number].thp-in.neg { color: #E24B4A; }
+
+.legend-row { display: flex; gap: 14px; font-size: 12px; color: var(--color-text-secondary); margin-bottom: 7px; }
+.ldot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 4px; vertical-align: middle; }
+.chart-wrap { position: relative; width: 100%; height: 210px; }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { padding: 6px 7px; text-align: left; color: var(--color-text-secondary); font-weight: 500; border-bottom: 0.5px solid var(--color-border-tertiary); white-space: nowrap; }
+td { padding: 4px 7px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--color-background-secondary); }
+
+.td-in { width: 60px; border: 0.5px solid var(--color-border-tertiary); border-radius: 5px; padding: 3px 5px; font-size: 12px; background: var(--color-background-secondary); color: var(--color-text-primary); outline: none; text-align: right; }
+.td-in:focus { border-color: #E8521A; background: var(--color-background-primary); }
+.obs-in { width: 100%; min-width: 110px; border: 0.5px solid var(--color-border-tertiary); border-radius: 5px; padding: 3px 6px; font-size: 11px; background: var(--color-background-secondary); color: var(--color-text-primary); outline: none; font-family: inherit; resize: none; }
+.obs-in:focus { border-color: #E8521A; }
+
+.badge { display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: 11px; }
+.ok { background: #EAF3DE; color: #3B6D11; }
+.fail { background: #FCEBEB; color: #A32D2D; }
+.na { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+
+.sum-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; }
+.sum-item { padding: 9px 11px; border-radius: 8px; background: var(--color-background-secondary); }
+.sum-label { font-size: 11px; color: var(--color-text-secondary); }
+.sum-val { font-size: 14px; font-weight: 500; margin-top: 2px; }
+.obs-main { font-size: 12px; color: var(--color-text-primary); padding: 8px; background: var(--color-background-secondary); border-radius: 6px; border: 0.5px solid var(--color-border-tertiary); width: 100%; min-height: 60px; outline: none; font-family: inherit; resize: vertical; margin-top: 8px; }
+.obs-main:focus { border-color: #E8521A; }
+
+.sync-bar { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--color-text-secondary); padding: 6px 10px; border-radius: 6px; background: var(--color-background-secondary); margin-bottom: 10px; }
+.sync-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.s-green { background: #1D9E75; }
+.s-yellow { background: #BA7517; }
+.s-red { background: #E24B4A; }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:.3} }
+.blinking { animation: blink 1s infinite; }
+.u-avatar { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; color: white; flex-shrink: 0; }
+input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
+input[type=number] { -moz-appearance: textfield; }
+
+.eos-table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+.eos-table th, .eos-table td { border: 0.5px solid var(--color-border-tertiary); padding: 5px 8px; vertical-align: middle; }
+.eos-hdr { background: #E8521A; color: white; font-weight: 500; font-size: 11px; text-align: center; }
+.eos-hdr2 { background: #F5956A; color: #4A1B0C; font-weight: 500; font-size: 11px; text-align: center; }
+.eos-row-label { font-weight: 500; color: var(--color-text-primary); }
+.eos-in { width: 100%; border: none; background: transparent; color: var(--color-text-primary); font-size: 12px; outline: none; text-align: center; font-family: inherit; }
+.eos-in:focus { background: var(--color-background-secondary); border-radius: 3px; }
+.eos-just { width: 100%; border: none; background: transparent; color: var(--color-text-primary); font-size: 11px; outline: none; font-family: inherit; resize: none; }
+.eos-just:focus { background: var(--color-background-secondary); border-radius: 3px; }
+.eos-calc { text-align: center; font-weight: 500; color: var(--color-text-secondary); }
+.eos-calc.neg { color: #E24B4A; }
+.eos-calc.pos { color: #1D9E75; }
+.sup-ok { background: #00CC00; color: #003300; text-align: center; font-weight: 500; }
+.sup-ok input { color: #003300; text-align: center; font-weight: 500; }
+.date-display { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 12px; }
+.week-label { background: #F5956A; color: #4A1B0C; font-weight: 500; text-align: center; font-size: 11px; }
+</style>
+
+</head><body>
+
+<div class="hh-header">
+  <div style="display:flex;align-items:center">
+    <div class="logo-box"><span>Shopee</span></div>
+    <div>
+      <div style="font-weight:500;font-size:15px;letter-spacing:.5px">ACOMPANHAMENTO HH</div>
+      <div style="font-size:10px;opacity:.85">T2 &nbsp;|&nbsp; 14:00 – 22:00</div>
+    </div>
+  </div>
+  <div style="font-size:12px;opacity:.9">CAD FREVO</div>
+  <div class="hh-clock" id="clock">10:44:41</div>
 </div>
 
-<div class="dashboard-grid">
-    <div class="card">
-        <h2>ACOMPANHAMENTO HH - PICKING</h2>
-        <table>
-            <thead>
-                <tr><th>Hora</th><th>DMO</th><th>Real</th><th>Delta</th><th>%</th></tr>
-            </thead>
-            <tbody>
-                <tr><td>14:00</td><td>880</td><td>986</td><td style="color:green">+106</td><td>112%</td></tr>
-                <tr><td>15:00</td><td>1022</td><td>1128</td><td style="color:green">+106</td><td>110.4%</td></tr>
-                <tr><td>16:00</td><td>1256</td><td>1461</td><td style="color:green">+205</td><td>116.3%</td></tr>
-                <tr><td>17:00</td><td>1351</td><td>1517</td><td style="color:green">+166</td><td>112.3%</td></tr>
-            </tbody>
-        </table>
+<div class="main">
+
+  <div class="sync-bar">
+    <span class="sync-dot s-red" id="syncDot"></span>
+    <span id="syncMsg">Storage indisponível – modo local</span>
+    <span style="margin-left:auto;display:flex;align-items:center;gap:5px" id="usersRow"><span style="font-size:11px;color:var(--color-text-secondary)">Modo offline</span></span>
+  </div>
+
+  <div class="tabs-row">
+    <button class="tab-btn active" onclick="showTab('hh',this)">Acompanhamento HH</button>
+    <button class="tab-btn" onclick="showTab('eos',this)">EOS – Passagem de Turno</button>
+  </div>
+
+  <div id="tab-hh" class="tab-panel active">
+
+    <div class="card" style="padding:11px 14px">
+      <div class="sec">Selecionar dia</div>
+      <div class="dtab-row" id="dateTabs"><div class="dtab active" onclick="selDate='1505';genDateTabs();renderHH()">15/05</div><div class="dtab" onclick="selDate='1605';genDateTabs();renderHH()">16/05</div><div class="dtab" onclick="selDate='1705';genDateTabs();renderHH()">17/05</div><div class="dtab" onclick="selDate='1805';genDateTabs();renderHH()">18/05</div><div class="dtab" onclick="selDate='1905';genDateTabs();renderHH()">19/05</div><div class="dtab" onclick="selDate='2005';genDateTabs();renderHH()">20/05</div><div class="dtab" onclick="selDate='2105';genDateTabs();renderHH()">21/05</div><div class="dtab" onclick="selDate='2205';genDateTabs();renderHH()">22/05</div><div class="dtab" onclick="selDate='2305';genDateTabs();renderHH()">23/05</div><div class="dtab" onclick="selDate='2405';genDateTabs();renderHH()">24/05</div><div class="dtab" onclick="selDate='2505';genDateTabs();renderHH()">25/05</div><div class="dtab" onclick="selDate='2605';genDateTabs();renderHH()">26/05</div><div class="dtab" onclick="selDate='2705';genDateTabs();renderHH()">27/05</div><div class="dtab" onclick="selDate='2805';genDateTabs();renderHH()">28/05</div></div>
     </div>
 
     <div class="card">
-        <h2>EOS – PASSAGEM DE TURNO</h2>
-        <table>
-            <thead>
-                <tr><th>Processo</th><th>DMO</th><th>Real</th><th>DIF %</th></tr>
-            </thead>
-            <tbody>
-                <tr><td>Picking</td><td>10.253</td><td>6.932</td><td>-32%</td></tr>
-                <tr><td>Checking</td><td>0</td><td>0</td><td>-</td></tr>
-            </tbody>
-        </table>
-        
-        <h2 style="margin-top: 30px;">INDICADORES OPERACIONAIS</h2>
-        <table>
-            <tr><th>Indicador</th><th>Meta</th><th>Real</th></tr>
-            <tr><td>IDLE OUT</td><td>95%</td><td>96,83%</td></tr>
-            <tr><td>ABS TURNO</td><td>3%</td><td>6,38%</td></tr>
-        </table>
+      <div class="sec" id="areaTitle">Picking – apontamento por hora</div>
+      <div class="atab-row">
+        <div class="atab active" onclick="selectArea('picking',this)">Picking</div>
+        <div class="atab" onclick="selectArea('checking',this)">Checking</div>
+      </div>
+      <div class="metrics" id="metricsGrid">
+    <div class="mc"><div class="mc-label">THP DMO</div><input class="thp-in" type="number" data-key="thpDmo" value="10595" placeholder="—" oninput="onThp('dmo',this.value)"></div>
+    <div class="mc"><div class="mc-label">THP Real</div><input class="thp-in pos" type="number" data-key="thpReal" value="12469" placeholder="—" oninput="onThp('real',this.value)"></div>
+    <div class="mc"><div class="mc-label">Diferença</div><div class="mc-val pos" id="thpDif">+1.874</div></div>
+    <div class="mc"><div class="mc-label">% Realização</div><div class="mc-val pos" id="thpPct">+17.7%</div></div></div>
+      <div class="legend-row">
+        <span><span class="ldot" style="background:#888780"></span>DMO</span>
+        <span><span class="ldot" style="background:#E8521A"></span>Real</span>
+        <span><span class="ldot" style="background:#1D9E75;border-radius:50%"></span>% Realização</span>
+      </div>
+      <div class="chart-wrap"><canvas id="mainChart" role="img" aria-label="Gráfico DMO vs Real com percentual por hora" width="840" height="315" style="display: block; box-sizing: border-box; height: 210px; width: 560px;"></canvas></div>
     </div>
+
+    <div class="card">
+      <div class="sec">Apontamento por hora</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Hora</th><th>DMO</th><th>Real</th><th>Delta</th><th>%</th>
+            <th>HC DMO</th><th>HC Real</th><th>Status</th>
+            <th style="min-width:140px">Observação</th>
+          </tr></thead>
+          <tbody id="hourBody"><tr>
+      <td><b>14:00</b></td>
+      <td><input class="td-in" type="number" data-key="r0_dmo" value="880" placeholder="—" oninput="onRow(0,'dmo',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r0_real" value="986" placeholder="—" oninput="onRow(0,'real',this.value)" style="border-color:#1D9E75"></td>
+      <td id="d0" style="color:#1D9E75;font-weight:500">+106</td>
+      <td id="p0" style="color:#1D9E75">112.0%</td>
+      <td><input class="td-in" type="number" data-key="r0_hcd" value="16" placeholder="—" oninput="onRow(0,'hcd',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r0_hcr" value="16" placeholder="—" oninput="onRow(0,'hcr',this.value)"></td>
+      <td id="b0"><span class="badge ok">OK</span></td>
+      <td><textarea class="obs-in" rows="1" data-key="r0_obs" oninput="onRow(0,'obs',this.value)">OK</textarea></td>
+    </tr><tr>
+      <td><b>15:00</b></td>
+      <td><input class="td-in" type="number" data-key="r1_dmo" value="1022" placeholder="—" oninput="onRow(1,'dmo',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r1_real" value="1128" placeholder="—" oninput="onRow(1,'real',this.value)" style="border-color:#1D9E75"></td>
+      <td id="d1" style="color:#1D9E75;font-weight:500">+106</td>
+      <td id="p1" style="color:#1D9E75">110.4%</td>
+      <td><input class="td-in" type="number" data-key="r1_hcd" value="16" placeholder="—" oninput="onRow(1,'hcd',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r1_hcr" value="16" placeholder="—" oninput="onRow(1,'hcr',this.value)"></td>
+      <td id="b1"><span class="badge ok">OK</span></td>
+      <td><textarea class="obs-in" rows="1" data-key="r1_obs" oninput="onRow(1,'obs',this.value)">OK</textarea></td>
+    </tr><tr>
+      <td><b>16:00</b></td>
+      <td><input class="td-in" type="number" data-key="r2_dmo" value="1256" placeholder="—" oninput="onRow(2,'dmo',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r2_real" value="1461" placeholder="—" oninput="onRow(2,'real',this.value)" style="border-color:#1D9E75"></td>
+      <td id="d2" style="color:#1D9E75;font-weight:500">+205</td>
+      <td id="p2" style="color:#1D9E75">116.3%</td>
+      <td><input class="td-in" type="number" data-key="r2_hcd" value="16" placeholder="—" oninput="onRow(2,'hcd',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r2_hcr" value="16" placeholder="—" oninput="onRow(2,'hcr',this.value)"></td>
+      <td id="b2"><span class="badge ok">OK</span></td>
+      <td><textarea class="obs-in" rows="1" data-key="r2_obs" oninput="onRow(2,'obs',this.value)">Sinergia acima do target</textarea></td>
+    </tr><tr>
+      <td><b>17:00</b></td>
+      <td><input class="td-in" type="number" data-key="r3_dmo" value="1351" placeholder="—" oninput="onRow(3,'dmo',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r3_real" value="1517" placeholder="—" oninput="onRow(3,'real',this.value)" style="border-color:#1D9E75"></td>
+      <td id="d3" style="color:#1D9E75;font-weight:500">+166</td>
+      <td id="p3" style="color:#1D9E75">112.3%</td>
+      <td><input class="td-in" type="number" data-key="r3_hcd" value="16" placeholder="—" oninput="onRow(3,'hcd',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r3_hcr" value="16" placeholder="—" oninput="onRow(3,'hcr',this.value)"></td>
+      <td id="b3"><span class="badge ok">OK</span></td>
+      <td><textarea class="obs-in" rows="1" data-key="r3_obs" oninput="onRow(3,'obs',this.value)">OK</textarea></td>
+    </tr><tr>
+      <td><b>18:00</b></td>
+      <td><input class="td-in" type="number" data-key="r4_dmo" value="675" placeholder="—" oninput="onRow(4,'dmo',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r4_real" value="1054" placeholder="—" oninput="onRow(4,'real',this.value)" style="border-color:#1D9E75"></td>
+      <td id="d4" style="color:#1D9E75;font-weight:500">+379</td>
+      <td id="p4" style="color:#1D9E75">156.1%</td>
+      <td><input class="td-in" type="number" data-key="r4_hcd" value="16" placeholder="—" oninput="onRow(4,'hcd',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r4_hcr" value="16" placeholder="—" oninput="onRow(4,'hcr',this.value)"></td>
+      <td id="b4"><span class="badge ok">OK</span></td>
+      <td><textarea class="obs-in" rows="1" data-key="r4_obs" oninput="onRow(4,'obs',this.value)">Equipe sem papel acima</textarea></td>
+    </tr><tr>
+      <td><b>19:00</b></td>
+      <td><input class="td-in" type="number" data-key="r5_dmo" value="854" placeholder="—" oninput="onRow(5,'dmo',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r5_real" value="1207" placeholder="—" oninput="onRow(5,'real',this.value)" style="border-color:#1D9E75"></td>
+      <td id="d5" style="color:#1D9E75;font-weight:500">+353</td>
+      <td id="p5" style="color:#1D9E75">141.3%</td>
+      <td><input class="td-in" type="number" data-key="r5_hcd" value="16" placeholder="—" oninput="onRow(5,'hcd',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r5_hcr" value="16" placeholder="—" oninput="onRow(5,'hcr',this.value)"></td>
+      <td id="b5"><span class="badge ok">OK</span></td>
+      <td><textarea class="obs-in" rows="1" data-key="r5_obs" oninput="onRow(5,'obs',this.value)">OK</textarea></td>
+    </tr><tr>
+      <td><b>20:00</b></td>
+      <td><input class="td-in" type="number" data-key="r6_dmo" value="1708" placeholder="—" oninput="onRow(6,'dmo',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r6_real" value="1790" placeholder="—" oninput="onRow(6,'real',this.value)" style="border-color:#1D9E75"></td>
+      <td id="d6" style="color:#1D9E75;font-weight:500">+82</td>
+      <td id="p6" style="color:#1D9E75">104.8%</td>
+      <td><input class="td-in" type="number" data-key="r6_hcd" value="16" placeholder="—" oninput="onRow(6,'hcd',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r6_hcr" value="16" placeholder="—" oninput="onRow(6,'hcr',this.value)"></td>
+      <td id="b6"><span class="badge ok">OK</span></td>
+      <td><textarea class="obs-in" rows="1" data-key="r6_obs" oninput="onRow(6,'obs',this.value)">OK</textarea></td>
+    </tr><tr>
+      <td><b>21:00</b></td>
+      <td><input class="td-in" type="number" data-key="r7_dmo" value="1708" placeholder="—" oninput="onRow(7,'dmo',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r7_real" value="2085" placeholder="—" oninput="onRow(7,'real',this.value)" style="border-color:#1D9E75"></td>
+      <td id="d7" style="color:#1D9E75;font-weight:500">+377</td>
+      <td id="p7" style="color:#1D9E75">122.1%</td>
+      <td><input class="td-in" type="number" data-key="r7_hcd" value="16" placeholder="—" oninput="onRow(7,'hcd',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r7_hcr" value="16" placeholder="—" oninput="onRow(7,'hcr',this.value)"></td>
+      <td id="b7"><span class="badge ok">OK</span></td>
+      <td><textarea class="obs-in" rows="1" data-key="r7_obs" oninput="onRow(7,'obs',this.value)">OK</textarea></td>
+    </tr><tr>
+      <td><b>22:00</b></td>
+      <td><input class="td-in" type="number" data-key="r8_dmo" value="1141" placeholder="—" oninput="onRow(8,'dmo',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r8_real" value="1241" placeholder="—" oninput="onRow(8,'real',this.value)" style="border-color:#1D9E75"></td>
+      <td id="d8" style="color:#1D9E75;font-weight:500">+100</td>
+      <td id="p8" style="color:#1D9E75">108.8%</td>
+      <td><input class="td-in" type="number" data-key="r8_hcd" value="16" placeholder="—" oninput="onRow(8,'hcd',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r8_hcr" value="16" placeholder="—" oninput="onRow(8,'hcr',this.value)"></td>
+      <td id="b8"><span class="badge ok">OK</span></td>
+      <td><textarea class="obs-in" rows="1" data-key="r8_obs" oninput="onRow(8,'obs',this.value)">OK</textarea></td>
+    </tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec">Resumo do turno</div>
+      <div class="sum-grid" id="summaryGrid"><div class="sum-item"><div class="sum-label">Total DMO (horas)</div><div class="sum-val" style="">10.595</div></div><div class="sum-item"><div class="sum-label">Total Real (horas)</div><div class="sum-val" style="color:#1D9E75">12.469</div></div><div class="sum-item"><div class="sum-label">Delta geral</div><div class="sum-val" style="color:#1D9E75">+1.874 (+17.7%)</div></div><div class="sum-item"><div class="sum-label">THP DMO</div><div class="sum-val" style="">10.595</div></div><div class="sum-item"><div class="sum-label">THP Real</div><div class="sum-val" style="color:#1D9E75">12.469</div></div><div class="sum-item"><div class="sum-label">THP Diferença</div><div class="sum-val" style="color:#1D9E75">+1.874 (+17.7%)</div></div></div>
+      <div class="sec" style="margin-top:13px">Principais observações</div>
+      <textarea class="obs-main" id="mainObs" placeholder="Digite aqui os principais desafios, gargalos ou recados para o próximo turno..."></textarea>
+    </div>
+
+  </div>
+
+  <div id="tab-eos" class="tab-panel">
+
+    <div class="card" style="padding:11px 14px">
+      <div class="sec">Selecionar dia</div>
+      <div class="dtab-row" id="eosDateTabs"><div class="dtab active" onclick="eosDate='1505';genDateTabs();renderEos()">15/05</div><div class="dtab" onclick="eosDate='1605';genDateTabs();renderEos()">16/05</div><div class="dtab" onclick="eosDate='1705';genDateTabs();renderEos()">17/05</div><div class="dtab" onclick="eosDate='1805';genDateTabs();renderEos()">18/05</div><div class="dtab" onclick="eosDate='1905';genDateTabs();renderEos()">19/05</div><div class="dtab" onclick="eosDate='2005';genDateTabs();renderEos()">20/05</div><div class="dtab" onclick="eosDate='2105';genDateTabs();renderEos()">21/05</div><div class="dtab" onclick="eosDate='2205';genDateTabs();renderEos()">22/05</div><div class="dtab" onclick="eosDate='2305';genDateTabs();renderEos()">23/05</div><div class="dtab" onclick="eosDate='2405';genDateTabs();renderEos()">24/05</div><div class="dtab" onclick="eosDate='2505';genDateTabs();renderEos()">25/05</div><div class="dtab" onclick="eosDate='2605';genDateTabs();renderEos()">26/05</div><div class="dtab" onclick="eosDate='2705';genDateTabs();renderEos()">27/05</div><div class="dtab" onclick="eosDate='2805';genDateTabs();renderEos()">28/05</div></div>
+    </div>
+
+    <div class="card">
+      <div class="date-display" id="eosDateLabel">DATA: 15/05/2025</div>
+
+      <div class="sec">Throughput por processo</div>
+      <div class="table-wrap" style="margin-bottom:14px">
+        <table class="eos-table">
+          <colgroup>
+            <col style="width:90px"><col style="width:80px"><col style="width:80px">
+            <col style="width:75px"><col style="width:65px"><col>
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="eos-hdr">PROCESSO</th>
+              <th class="eos-hdr">DMO</th>
+              <th class="eos-hdr">REAL</th>
+              <th class="eos-hdr">DIF QTD</th>
+              <th class="eos-hdr">DIF %</th>
+              <th class="eos-hdr">JUSTIFICATIVA</th>
+            </tr>
+          </thead>
+          <tbody id="eosThpBody"></tbody>
+        </table>
+      </div>
+
+      <div class="sec">COTS</div>
+      <div class="table-wrap" style="margin-bottom:14px">
+        <table class="eos-table">
+          <colgroup>
+            <col style="width:90px"><col style="width:80px"><col style="width:80px">
+            <col style="width:75px"><col style="width:65px"><col>
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="eos-hdr2"></th>
+              <th class="eos-hdr2">META</th>
+              <th class="eos-hdr2">REAL</th>
+              <th class="eos-hdr2">DIF QTD</th>
+              <th class="eos-hdr2">DIF %</th>
+              <th class="eos-hdr2">JUSTIFICATIVA</th>
+            </tr>
+          </thead>
+          <tbody id="eosCotsBody"></tbody>
+        </table>
+      </div>
+
+      <div class="sec">Indicadores operacionais</div>
+      <div class="table-wrap" style="margin-bottom:14px">
+        <table class="eos-table">
+          <colgroup>
+            <col style="width:90px"><col style="width:80px"><col style="width:80px">
+            <col style="width:75px"><col style="width:65px"><col>
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="eos-hdr2"></th>
+              <th class="eos-hdr2">META</th>
+              <th class="eos-hdr2">REAL</th>
+              <th class="eos-hdr2">DIF QTD</th>
+              <th class="eos-hdr2">DIF %</th>
+              <th class="eos-hdr2">JUSTIFICATIVA</th>
+            </tr>
+          </thead>
+          <tbody id="eosIndBody"></tbody>
+        </table>
+      </div>
+
+      <div class="sec">Supervisores – semana W<span id="weekLabel"></span></div>
+      <div class="table-wrap">
+        <table class="eos-table" id="eosSupTable">
+          <colgroup>
+            <col style="width:90px">
+            <col><col><col><col><col><col><col>
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="eos-hdr" rowspan="1">SUPERVISOR</th>
+              <th class="eos-hdr" colspan="7" id="weekHeader">W20 – 10/05 – 16/05</th>
+            </tr>
+            <tr>
+              <th class="eos-hdr2"></th>
+              <th class="eos-hdr2">04 OPA</th>
+              <th class="eos-hdr2">DDS – SEMANAL</th>
+              <th class="eos-hdr2">Safety Walk</th>
+              <th class="eos-hdr2">PA OPA HSE</th>
+              <th class="eos-hdr2">LIDER NO PROC</th>
+              <th class="eos-hdr2">CUIDADO ATIVO</th>
+              <th class="eos-hdr2">DIF QUALIDADE</th>
+            </tr>
+          </thead>
+          <tbody id="eosSupBody"></tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button onclick="addSupervisor()" style="padding:5px 12px;border-radius:6px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:12px;cursor:pointer">
+          <i class="ti ti-plus" aria-hidden="true"></i> Adicionar supervisor
+        </button>
+        <button onclick="removeSupervisor()" style="padding:5px 12px;border-radius:6px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);font-size:12px;cursor:pointer">
+          <i class="ti ti-trash" aria-hidden="true"></i> Remover último
+        </button>
+      </div>
+    </div>
+
+  </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const HOURS = ["14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00"];
+const UCOLORS = ["#E8521A","#1D9E75","#378ADD","#D4537E","#BA7517","#534AB7","#3B6D11","#993C1D"];
+const UID = "U"+Math.random().toString(36).slice(2,6).toUpperCase();
+const UCOL = UCOLORS[Math.floor(Math.random()*UCOLORS.length)];
+
+function genDates() {
+  const base = new Date(2025,4,15);
+  return Array.from({length:14},(_,i)=>{
+    const d=new Date(base); d.setDate(base.getDate()+i);
+    const dd=String(d.getDate()).padStart(2,'0'), mm=String(d.getMonth()+1).padStart(2,'0');
+    return {label:dd+"/"+mm, key:dd+mm, full:dd+"/"+mm+"/2025"};
+  });
+}
+const DATES = genDates();
+
+function emptyRows() { return HOURS.map(h=>({h,dmo:null,real:null,hcd:null,hcr:null,obs:""})); }
+function emptyArea() { return {rows:emptyRows(),thpDmo:null,thpReal:null,mainObs:""}; }
+
+function defaultEos() {
+  return {
+    thp:[
+      {proc:"Picking", dmo:"10.253", real:"6.932", just:"Sinergia performando acima da LC."},
+      {proc:"Checking", dmo:"0", real:"0", just:"Novatos performando acima da LC de semana 1 e semana 2."}
+    ],
+    cots:[
+      {proc:"COTS – PK", meta:"15", real:"15", just:"OK"},
+      {proc:"COTS – CK", meta:"15", real:"15", just:"OK"}
+    ],
+    ind:[
+      {proc:"IDLE TURNO", meta:"95%", real:"", just:"Colaborador do Inbound logou às 20hs em 5S e só deslogou às 05hs da manhã no alto scanout"},
+      {proc:"IDLE OUT",   meta:"95%", real:"96,83%", just:"OK"},
+      {proc:"ABS TURNO",  meta:"3%",  real:"6,38%",  just:"Cleiva se recuperando de cirurgia. / Vitória – Picking (Bolhas nos pés) / Paula – inbound (Injustificada)"},
+      {proc:"ABS OUT",    meta:"3%",  real:"7,41%",  just:"Cleiva se recuperando de cirurgia. / Vitória – Picking (Bolhas nos pés)"},
+      {proc:"FAST START", meta:"100%",real:"",        just:"Base de Fast Start inoperante."}
+    ],
+    supervisors:[
+      {name:"GUIOBERTO", cols:["OK","OK","OK","OK","OK","OK","OK"]},
+      {name:"MÁRIO",     cols:["OK","OK","OK","OK","OK","OK","OK"]},
+      {name:"MIGUEL",    cols:["OK","OK","OK","OK","OK","OK","OK"]},
+      {name:"SILVIO",    cols:["OK","OK","OK","OK","OK","OK","OK"]}
+    ],
+    weekLabel:"20 – 10/05 – 16/05"
+  };
+}
+
+const SEED_HH = {"1505":{
+  picking:{rows:[
+    {h:"14:00",dmo:880,real:986,hcd:16,hcr:16,obs:"OK"},
+    {h:"15:00",dmo:1022,real:1128,hcd:16,hcr:16,obs:"OK"},
+    {h:"16:00",dmo:1256,real:1461,hcd:16,hcr:16,obs:"Sinergia acima do target"},
+    {h:"17:00",dmo:1351,real:1517,hcd:16,hcr:16,obs:"OK"},
+    {h:"18:00",dmo:675,real:1054,hcd:16,hcr:16,obs:"Equipe sem papel acima"},
+    {h:"19:00",dmo:854,real:1207,hcd:16,hcr:16,obs:"OK"},
+    {h:"20:00",dmo:1708,real:1790,hcd:16,hcr:16,obs:"OK"},
+    {h:"21:00",dmo:1708,real:2085,hcd:16,hcr:16,obs:"OK"},
+    {h:"22:00",dmo:1141,real:1241,hcd:16,hcr:16,obs:"OK"}
+  ],thpDmo:10595,thpReal:12469,mainObs:"Turno positivo. THP acima do DMO em todas as janelas."},
+  checking:{rows:[
+    {h:"14:00",dmo:704,real:1191,hcd:13,hcr:13,obs:"OK"},
+    {h:"15:00",dmo:1540,real:1867,hcd:13,hcr:13,obs:"OK"},
+    {h:"16:00",dmo:1540,real:1662,hcd:13,hcr:13,obs:"OK"},
+    {h:"17:00",dmo:770,real:1219,hcd:13,hcr:13,obs:"OK"},
+    {h:"18:00",dmo:505,real:784,hcd:13,hcr:13,obs:"OK"},
+    {h:"19:00",dmo:1195,real:1161,hcd:13,hcr:13,obs:"Baixo backlog"},
+    {h:"20:00",dmo:1542,real:1854,hcd:13,hcr:13,obs:"OK"},
+    {h:"21:00",dmo:1717,real:2028,hcd:13,hcr:13,obs:"OK"},
+    {h:"22:00",dmo:1288,real:1589,hcd:13,hcr:13,obs:"OK"}
+  ],thpDmo:10801,thpReal:13355,mainObs:"Excelente performance. Baixo backlog às 19h afetou levemente."}
+}};
+
+let DB = { hh:{}, eos:{} };
+let selDate = DATES[0].key;
+let selArea = "picking";
+let eosDate = DATES[0].key;
+let chart = null;
+let lastHash = "";
+let saveTimer = null;
+let storageOK = false;
+
+function getHH(date,area){
+  if(!DB.hh[date]) DB.hh[date]={};
+  if(!DB.hh[date][area]){
+    const s=SEED_HH[date]&&SEED_HH[date][area];
+    DB.hh[date][area]=s?JSON.parse(JSON.stringify(s)):emptyArea();
+  }
+  return DB.hh[date][area];
+}
+function getEos(date){
+  if(!DB.eos[date]) DB.eos[date]=defaultEos();
+  return DB.eos[date];
+}
+function cur(){ return getHH(selDate,selArea); }
+function curEos(){ return getEos(eosDate); }
+
+function showTab(name, btn){
+  document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  document.getElementById("tab-"+name).classList.add("active");
+  btn.classList.add("active");
+  if(name==="eos") renderEos();
+}
+
+function dot(state,msg){
+  const d=document.getElementById("syncDot"), s=document.getElementById("syncMsg");
+  if(!d||!s)return;
+  if(state==="ok"){d.className="sync-dot s-green";s.textContent=msg||"Sincronizado · "+new Date().toTimeString().slice(0,5);}
+  else if(state==="saving"){d.className="sync-dot s-yellow blinking";s.textContent="Salvando...";}
+  else{d.className="sync-dot s-red";s.textContent=msg||"Erro de conexão";}
+}
+
+async function storageSave(){
+  if(!storageOK)return;
+  try{
+    await window.storage.set("hh_eos_v1",JSON.stringify({data:DB,ts:Date.now(),by:UID}),true);
+    lastHash=JSON.stringify(DB); dot("ok");
+  }catch(e){dot("error","Erro ao salvar");}
+}
+async function storageLoad(){
+  if(!storageOK)return false;
+  try{
+    const r=await window.storage.get("hh_eos_v1",true);
+    if(!r||!r.value)return false;
+    const p=JSON.parse(r.value);
+    const h=JSON.stringify(p.data);
+    if(h===lastHash)return false;
+    lastHash=h;
+    mergeDB(p.data);
+    return true;
+  }catch(e){return false;}
+}
+function mergeDB(incoming){
+  if(incoming.hh) Object.keys(incoming.hh).forEach(date=>{
+    if(!DB.hh[date]) DB.hh[date]={};
+    Object.keys(incoming.hh[date]).forEach(area=>{
+      if(date!==selDate||area!==selArea){ DB.hh[date][area]=incoming.hh[date][area]; return; }
+      const src=incoming.hh[date][area], dst=DB.hh[date][area];
+      const fk=document.activeElement?document.activeElement.dataset.key:null;
+      if(fk!=="thpDmo") dst.thpDmo=src.thpDmo;
+      if(fk!=="thpReal") dst.thpReal=src.thpReal;
+      if(fk!=="mainObs") dst.mainObs=src.mainObs;
+      (src.rows||[]).forEach((sr,i)=>{
+        if(!dst.rows[i]){dst.rows[i]=sr;return;}
+        ["dmo","real","hcd","hcr"].forEach(f=>{ if(fk!==`r${i}_${f}`) dst.rows[i][f]=sr[f]; });
+        if(fk!==`r${i}_obs`) dst.rows[i].obs=sr.obs;
+      });
+    });
+  });
+  if(incoming.eos) Object.keys(incoming.eos).forEach(date=>{
+    if(date!==eosDate){ DB.eos[date]=incoming.eos[date]; return; }
+    DB.eos[date]=incoming.eos[date];
+  });
+}
+function scheduleSave(){ clearTimeout(saveTimer); dot("saving"); saveTimer=setTimeout(storageSave,700); }
+
+async function testStorage(){
+  if(typeof window.storage==="undefined"){storageOK=false;return false;}
+  try{
+    await window.storage.set("hh_ping","1",true);
+    const r=await window.storage.get("hh_ping",true);
+    storageOK=!!(r&&r.value==="1"); return storageOK;
+  }catch(e){storageOK=false;return false;}
+}
+async function syncLoop(){
+  const changed=await storageLoad();
+  if(changed){
+    const panel=document.getElementById("tab-hh");
+    if(panel.classList.contains("active")) applyRemoteHH();
+    else renderEos();
+  }
+  await presencePing();
+}
+function applyRemoteHH(){
+  const d=cur(), focused=document.activeElement, fk=focused?focused.dataset.key:null;
+  if(fk!=="thpDmo"){const el=document.querySelector('[data-key="thpDmo"]');if(el&&focused!==el)el.value=d.thpDmo||"";}
+  if(fk!=="thpReal"){const el=document.querySelector('[data-key="thpReal"]');if(el&&focused!==el){el.value=d.thpReal||"";const pos=(d.thpReal||0)>=(d.thpDmo||0);el.className="thp-in "+(pos?"pos":"neg");}}
+  calcThpDerived();
+  d.rows.forEach((_,i)=>{
+    ["dmo","real","hcd","hcr"].forEach(f=>{const el=document.querySelector(`[data-key="r${i}_${f}"]`);if(el&&focused!==el)el.value=d.rows[i][f]!=null?d.rows[i][f]:"";});
+    const oe=document.querySelector(`[data-key="r${i}_obs"]`);if(oe&&focused!==oe)oe.value=d.rows[i].obs||"";
+    refreshRowDerived(i);
+  });
+  if(fk!=="mainObs"){const mo=document.getElementById("mainObs");if(mo&&focused!==mo)mo.value=d.mainObs||"";}
+  updateChart(); renderSummary();
+}
+async function presencePing(){
+  if(!storageOK)return;
+  try{
+    await window.storage.set("hhp_"+UID,JSON.stringify({id:UID,color:UCOL,ts:Date.now()}),true);
+    const keys=await window.storage.list("hhp_",true);
+    if(!keys||!keys.keys)return;
+    const now=Date.now(), active=[];
+    await Promise.all(keys.keys.map(async k=>{
+      try{const r=await window.storage.get(k,true);if(r&&r.value){const u=JSON.parse(r.value);if(now-u.ts<20000)active.push(u);}}catch(e){}
+    }));
+    const row=document.getElementById("usersRow");
+    if(row)row.innerHTML=`<span style="font-size:11px;color:var(--color-text-secondary);margin-right:3px">${active.length} online</span>`+
+      active.map(u=>`<div class="u-avatar" style="background:${u.color}" title="${u.id}">${u.id.slice(0,2)}</div>`).join("");
+  }catch(e){}
+}
+
+function genDateTabs(){
+  document.getElementById("dateTabs").innerHTML=DATES.map(d=>
+    `<div class="dtab${d.key===selDate?" active":""}" onclick="selDate='${d.key}';genDateTabs();renderHH()">${d.label}</div>`).join("");
+  document.getElementById("eosDateTabs").innerHTML=DATES.map(d=>
+    `<div class="dtab${d.key===eosDate?" active":""}" onclick="eosDate='${d.key}';genDateTabs();renderEos()">${d.label}</div>`).join("");
+}
+function selectArea(area,el){
+  selArea=area;
+  document.querySelectorAll(".atab").forEach(t=>t.classList.remove("active"));
+  el.classList.add("active");
+  document.getElementById("areaTitle").textContent=area==="picking"?"Picking – apontamento por hora":"Checking – apontamento por hora";
+  renderHH();
+}
+
+function renderMetrics(){
+  const d=cur(), dif=(d.thpReal||0)-(d.thpDmo||0), pct=d.thpDmo>0?((dif/d.thpDmo)*100).toFixed(1):"0.0", pos=dif>=0;
+  document.getElementById("metricsGrid").innerHTML=`
+    <div class="mc"><div class="mc-label">THP DMO</div><input class="thp-in" type="number" data-key="thpDmo" value="${d.thpDmo||""}" placeholder="—" oninput="onThp('dmo',this.value)"></div>
+    <div class="mc"><div class="mc-label">THP Real</div><input class="thp-in ${pos?"pos":"neg"}" type="number" data-key="thpReal" value="${d.thpReal||""}" placeholder="—" oninput="onThp('real',this.value)"></div>
+    <div class="mc"><div class="mc-label">Diferença</div><div class="mc-val ${pos?"pos":"neg"}" id="thpDif">${pos?"+":""}${dif.toLocaleString()}</div></div>
+    <div class="mc"><div class="mc-label">% Realização</div><div class="mc-val ${pos?"pos":"neg"}" id="thpPct">${pos?"+":""}${pct}%</div></div>`;
+}
+function onThp(f,val){ cur()[f==="dmo"?"thpDmo":"thpReal"]=parseInt(val)||null; calcThpDerived(); renderSummary(); scheduleSave(); }
+function calcThpDerived(){
+  const d=cur(), dif=(d.thpReal||0)-(d.thpDmo||0), pct=d.thpDmo>0?((dif/d.thpDmo)*100).toFixed(1):"0.0", pos=dif>=0;
+  const de=document.getElementById("thpDif"),pe=document.getElementById("thpPct");
+  if(de){de.textContent=(pos?"+":"")+dif.toLocaleString();de.className="mc-val "+(pos?"pos":"neg");}
+  if(pe){pe.textContent=(pos?"+":"")+pct+"%";pe.className="mc-val "+(pos?"pos":"neg");}
+  const re=document.querySelector('[data-key="thpReal"]');if(re&&document.activeElement!==re)re.className="thp-in "+(pos?"pos":"neg");
+}
+function renderTable(){
+  const d=cur();
+  document.getElementById("hourBody").innerHTML=d.rows.map((r,i)=>{
+    const delta=(r.dmo&&r.real)?r.real-r.dmo:null, pct=(r.dmo&&r.real&&r.dmo>0)?((r.real/r.dmo)*100).toFixed(1):null, ok=delta!==null?delta>=0:null;
+    return `<tr>
+      <td><b>${r.h}</b></td>
+      <td><input class="td-in" type="number" data-key="r${i}_dmo" value="${r.dmo!=null?r.dmo:""}" placeholder="—" oninput="onRow(${i},'dmo',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r${i}_real" value="${r.real!=null?r.real:""}" placeholder="—" oninput="onRow(${i},'real',this.value)" style="border-color:${ok===null?"var(--color-border-tertiary)":ok?"#1D9E75":"#E24B4A"}"></td>
+      <td id="d${i}" style="color:${ok===null?"var(--color-text-secondary)":ok?"#1D9E75":"#E24B4A"};font-weight:500">${delta===null?"—":(delta>=0?"+":"")+delta.toLocaleString()}</td>
+      <td id="p${i}" style="color:${ok===null?"var(--color-text-secondary)":ok?"#1D9E75":"#E24B4A"}">${pct===null?"—":pct+"%"}</td>
+      <td><input class="td-in" type="number" data-key="r${i}_hcd" value="${r.hcd!=null?r.hcd:""}" placeholder="—" oninput="onRow(${i},'hcd',this.value)"></td>
+      <td><input class="td-in" type="number" data-key="r${i}_hcr" value="${r.hcr!=null?r.hcr:""}" placeholder="—" oninput="onRow(${i},'hcr',this.value)"></td>
+      <td id="b${i}"><span class="badge ${ok===null?"na":ok?"ok":"fail"}">${ok===null?"—":ok?"OK":"Abaixo"}</span></td>
+      <td><textarea class="obs-in" rows="1" data-key="r${i}_obs" oninput="onRow(${i},'obs',this.value)">${r.obs||""}</textarea></td>
+    </tr>`;
+  }).join("");
+}
+function onRow(i,f,val){
+  const r=cur().rows[i]; r[f]=f==="obs"?val:(parseInt(val)||null);
+  refreshRowDerived(i); if(f==="dmo"||f==="real")updateChart(); renderSummary(); scheduleSave();
+}
+function refreshRowDerived(i){
+  const r=cur().rows[i], delta=(r.dmo&&r.real)?r.real-r.dmo:null, pct=(r.dmo&&r.real&&r.dmo>0)?((r.real/r.dmo)*100).toFixed(1):null, ok=delta!==null?delta>=0:null;
+  const de=document.getElementById("d"+i),pe=document.getElementById("p"+i),be=document.getElementById("b"+i);
+  if(de){de.textContent=delta===null?"—":(delta>=0?"+":"")+delta.toLocaleString();de.style.color=ok===null?"var(--color-text-secondary)":ok?"#1D9E75":"#E24B4A";}
+  if(pe){pe.textContent=pct===null?"—":pct+"%";pe.style.color=ok===null?"var(--color-text-secondary)":ok?"#1D9E75":"#E24B4A";}
+  if(be)be.innerHTML=`<span class="badge ${ok===null?"na":ok?"ok":"fail"}">${ok===null?"—":ok?"OK":"Abaixo"}</span>`;
+  const rIn=document.querySelector(`[data-key="r${i}_real"]`);if(rIn&&document.activeElement!==rIn)rIn.style.borderColor=ok===null?"var(--color-border-tertiary)":ok?"#1D9E75":"#E24B4A";
+}
+function buildChart(){
+  const rows=cur().rows;
+  return {labels:rows.map(r=>r.h),dmo:rows.map(r=>r.dmo||0),real:rows.map(r=>r.real||0),pcts:rows.map(r=>(r.dmo&&r.real&&r.dmo>0)?parseFloat(((r.real/r.dmo)*100).toFixed(1)):null)};
+}
+function updateChart(){ if(!chart)return; const {dmo,real,pcts}=buildChart(); chart.data.datasets[0].data=dmo; chart.data.datasets[1].data=real; chart.data.datasets[2].data=pcts; chart.update(); }
+function renderChart(){
+  const {labels,dmo,real,pcts}=buildChart(); if(chart)chart.destroy();
+  const ctx=document.getElementById("mainChart").getContext("2d");
+  chart=new Chart(ctx,{data:{labels,datasets:[
+    {type:"bar",label:"DMO",data:dmo,backgroundColor:"rgba(136,135,128,0.35)",borderColor:"#888780",borderWidth:.5,borderRadius:3,yAxisID:"y"},
+    {type:"bar",label:"Real",data:real,backgroundColor:"rgba(232,82,26,0.7)",borderColor:"#E8521A",borderWidth:.5,borderRadius:3,yAxisID:"y"},
+    {type:"line",label:"% Realiz.",data:pcts,borderColor:"#1D9E75",backgroundColor:"rgba(29,158,117,0.08)",borderWidth:2,pointRadius:4,pointBackgroundColor:"#1D9E75",pointBorderColor:"white",pointBorderWidth:1.5,tension:0.3,fill:false,yAxisID:"y2"}
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{ if(c.dataset.yAxisID==="y2")return c.parsed.y!==null?`% Realiz.: ${c.parsed.y}%`:null; return `${c.dataset.label}: ${c.parsed.y.toLocaleString()}`; }}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:10},maxRotation:0}},y:{position:"left",grid:{color:"rgba(0,0,0,0.05)"},ticks:{font:{size:10},callback:v=>v>999?(v/1000).toFixed(1)+"k":v}},y2:{position:"right",grid:{drawOnChartArea:false},suggestedMin:70,suggestedMax:130,ticks:{font:{size:10},callback:v=>v+"%"}}},
+    animation:{onComplete:()=>{if(!chart)return;const c2=chart.ctx;c2.save();c2.textAlign="center";chart.data.datasets.forEach((ds,di)=>{if(ds.yAxisID!=="y")return;ds.data.forEach((val,i)=>{if(!val)return;const meta=chart.getDatasetMeta(di);if(meta.hidden)return;const bar=meta.data[i];c2.fillStyle=di===0?"#5F5E5A":"#993C1D";c2.font="bold 9px system-ui";c2.fillText(val>999?(val/1000).toFixed(1)+"k":val,bar.x,bar.y-3);});});chart.data.datasets.forEach((ds,di)=>{if(ds.yAxisID!=="y2")return;ds.data.forEach((val,i)=>{if(val===null||val===undefined)return;const meta=chart.getDatasetMeta(di);const pt=meta.data[i];c2.fillStyle=val>=100?"#1D9E75":"#E24B4A";c2.font="bold 9px system-ui";c2.fillText(val+"%",pt.x,pt.y-7);});});c2.restore();}}}});
+}
+function renderSummary(){
+  const d=cur(), vr=d.rows.filter(r=>r.dmo&&r.real), tDmo=vr.reduce((s,r)=>s+r.dmo,0), tReal=vr.reduce((s,r)=>s+r.real,0), tDif=tReal-tDmo, tPct=tDmo>0?((tDif/tDmo)*100).toFixed(1):"0.0", thpDif=(d.thpReal||0)-(d.thpDmo||0), thpPct=d.thpDmo>0?((thpDif/d.thpDmo)*100).toFixed(1):"0.0";
+  document.getElementById("summaryGrid").innerHTML=[{l:"Total DMO (horas)",v:tDmo.toLocaleString()},{l:"Total Real (horas)",v:tReal.toLocaleString(),pos:tDif>=0},{l:"Delta geral",v:(tDif>=0?"+":"")+tDif.toLocaleString()+" ("+(tDif>=0?"+":"")+tPct+"%)",pos:tDif>=0},{l:"THP DMO",v:(d.thpDmo||0).toLocaleString()},{l:"THP Real",v:(d.thpReal||0).toLocaleString(),pos:thpDif>=0},{l:"THP Diferença",v:(thpDif>=0?"+":"")+thpDif.toLocaleString()+" ("+(thpDif>=0?"+":"")+thpPct+"%)",pos:thpDif>=0}]
+    .map(it=>`<div class="sum-item"><div class="sum-label">${it.l}</div><div class="sum-val" style="${"pos"in it?(it.pos?"color:#1D9E75":"color:#E24B4A"):""}">${it.v}</div></div>`).join("");
+}
+function renderHH(){
+  renderMetrics(); renderTable(); renderChart(); renderSummary();
+  const mo=document.getElementById("mainObs"); if(mo)mo.value=cur().mainObs||"";
+}
+document.addEventListener("input",e=>{ if(e.target.id==="mainObs"){cur().mainObs=e.target.value;scheduleSave();} });
+
+function eosCalcRow(meta, real){
+  const mNum=parseFloat((meta||"").replace(",",".").replace("%",""));
+  const rNum=parseFloat((real||"").replace(",",".").replace("%",""));
+  if(isNaN(mNum)||isNaN(rNum)||!real) return {dif:"—",pct:"—",cls:""};
+  const dif=rNum-mNum, pct=mNum!==0?((dif/Math.abs(mNum))*100).toFixed(0)+"%" :"—";
+  return {dif:(dif>=0?"+":"")+dif.toFixed(2).replace(".",","), pct:(dif>=0?"+":"")+pct, cls:dif>=0?"pos":"neg"};
+}
+
+function renderEos(){
+  const e=curEos();
+  const dateObj=DATES.find(d=>d.key===eosDate);
+  if(dateObj) document.getElementById("eosDateLabel").textContent="DATA: "+dateObj.full;
+  document.getElementById("weekHeader").textContent="W"+e.weekLabel;
+
+  document.getElementById("eosThpBody").innerHTML=e.thp.map((r,i)=>{
+    const mNum=parseFloat((r.dmo||"").replace(/\./g,"").replace(",","."));
+    const rNum=parseFloat((r.real||"").replace(/\./g,"").replace(",","."));
+    const dif=(!isNaN(mNum)&&!isNaN(rNum))?(rNum-mNum):null;
+    const pct=(dif!==null&&mNum!==0)?((dif/Math.abs(mNum))*100).toFixed(0)+"%":null;
+    const cls=dif!==null?(dif>=0?"pos":"neg"):"";
+    return `<tr>
+      <td class="eos-row-label">${r.proc}</td>
+      <td><input class="eos-in" value="${r.dmo}" oninput="curEos().thp[${i}].dmo=this.value;renderEos();scheduleSave()"></td>
+      <td><input class="eos-in" value="${r.real}" oninput="curEos().thp[${i}].real=this.value;renderEos();scheduleSave()"></td>
+      <td class="eos-calc ${cls}">${dif!==null?(dif>=0?"+":"")+dif.toLocaleString("pt-BR",{maximumFractionDigits:0}):"—"}</td>
+      <td class="eos-calc ${cls}">${pct!==null?(parseFloat(pct)>=0?"+":"")+pct:"—"}</td>
+      <td><textarea class="eos-just" rows="2" oninput="curEos().thp[${i}].just=this.value;scheduleSave()">${r.just}</textarea></td>
+    </tr>`;
+  }).join("");
+
+  document.getElementById("eosCotsBody").innerHTML=e.cots.map((r,i)=>{
+    const c=eosCalcRow(r.meta,r.real);
+    return `<tr>
+      <td class="eos-row-label">${r.proc}</td>
+      <td><input class="eos-in" value="${r.meta}" oninput="curEos().cots[${i}].meta=this.value;renderEos();scheduleSave()"></td>
+      <td><input class="eos-in" value="${r.real}" oninput="curEos().cots[${i}].real=this.value;renderEos();scheduleSave()"></td>
+      <td class="eos-calc ${c.cls}">${c.dif}</td>
+      <td class="eos-calc ${c.cls}">${c.pct}</td>
+      <td><textarea class="eos-just" rows="1" oninput="curEos().cots[${i}].just=this.value;scheduleSave()">${r.just}</textarea></td>
+    </tr>`;
+  }).join("");
+
+  document.getElementById("eosIndBody").innerHTML=e.ind.map((r,i)=>{
+    const c=eosCalcRow(r.meta,r.real);
+    return `<tr>
+      <td class="eos-row-label">${r.proc}</td>
+      <td><input class="eos-in" value="${r.meta}" oninput="curEos().ind[${i}].meta=this.value;renderEos();scheduleSave()"></td>
+      <td><input class="eos-in" value="${r.real}" oninput="curEos().ind[${i}].real=this.value;renderEos();scheduleSave()"></td>
+      <td class="eos-calc ${c.cls}">${c.dif}</td>
+      <td class="eos-calc ${c.cls}">${c.pct}</td>
+      <td><textarea class="eos-just" rows="2" oninput="curEos().ind[${i}].just=this.value;scheduleSave()">${r.just}</textarea></td>
+    </tr>`;
+  }).join("");
+
+  const SUP_COLS=["04 OPA","DDS – SEMANAL","Safety Walk","PA OPA HSE","LIDER NO PROC","CUIDADO ATIVO","DIF QUALIDADE"];
+  document.getElementById("eosSupBody").innerHTML=e.supervisors.map((s,si)=>`<tr>
+    <td><input class="eos-in" style="font-weight:500" value="${s.name}" oninput="curEos().supervisors[${si}].name=this.value;scheduleSave()"></td>
+    ${s.cols.map((c,ci)=>`<td class="sup-ok"><input class="eos-in" style="background:#00CC00;color:#003300;font-weight:500" value="${c}" oninput="curEos().supervisors[${si}].cols[${ci}]=this.value;scheduleSave()"></td>`).join("")}
+  </tr>`).join("");
+}
+
+function addSupervisor(){
+  curEos().supervisors.push({name:"NOVO",cols:["OK","OK","OK","OK","OK","OK","OK"]});
+  renderEos(); scheduleSave();
+}
+function removeSupervisor(){
+  const s=curEos().supervisors; if(s.length>1){s.pop();renderEos();scheduleSave();}
+}
+
+async function init(){
+  genDateTabs(); renderHH();
+  dot("saving","Verificando storage...");
+  const ok=await testStorage();
+  if(ok){
+    dot("saving","Carregando dados...");
+    const loaded=await storageLoad();
+    if(loaded){genDateTabs();renderHH();}
+    dot("ok");
+    setInterval(syncLoop,3000);
+    setInterval(presencePing,8000);
+    await presencePing();
+  }else{
+    dot("error","Storage indisponível – modo local");
+    document.getElementById("usersRow").innerHTML=`<span style="font-size:11px;color:var(--color-text-secondary)">Modo offline</span>`;
+  }
+  setInterval(()=>{document.getElementById("clock").textContent=new Date().toTimeString().slice(0,8);},1000);
+  document.getElementById("clock").textContent=new Date().toTimeString().slice(0,8);
+}
+init();
+</script>
+    
 </body>
 </html>
